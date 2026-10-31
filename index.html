@@ -380,8 +380,40 @@ dialog.dlg-pet{width:min(94vw,460px);max-height:92vh;overflow:auto}
 .olho{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:40px;height:40px;border:0;border-radius:12px;background:transparent;color:var(--sub);display:grid;place-items:center}
 .olho.on{color:var(--acc);background:var(--trilho)}
 .lembrar{display:flex;align-items:center;gap:10px;font-weight:700;font-size:14px;color:var(--sub)}.lembrar input{width:22px;height:22px;min-height:0;accent-color:var(--acc)}
-@media (prefers-reduced-motion:reduce){.cad-fx i,.cad-orb .aro{animation:none}.btn.p::after,.principal::after,.pet-flut{animation:none}.agora-linha::before{animation:none}.ambiente,.bolha::after,.nuvem,.particulas i,.bicho .corpo,.ovo,.avatar,.avatar img,.liq i::after{animation:none}}
-@media (min-width:900px){.app{max-width:620px}}
+
+.kpi{text-align:left;color:inherit;font:inherit;cursor:pointer}.kpi.sel{outline:2px solid var(--acc)}
+.barra b{white-space:nowrap}
+.home-grid,.duo{display:block}
+@media (min-width:900px){
+ .app{max-width:1280px;padding-left:252px;padding-right:32px}
+ .top{margin:0 -32px 0 -252px;padding-left:24px;padding-right:24px}
+ .nav{left:20px;top:86px;bottom:auto;transform:none;width:212px;grid-template-columns:1fr;gap:4px;padding:10px;border-radius:26px}
+ .nav button{grid-auto-flow:column;justify-content:start;align-items:center;gap:12px;padding:12px 14px;font-size:14px}
+ .home-grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:24px;align-items:start}
+ .home-grid .infos{margin-top:10px}
+ .banner{min-height:300px}.banner blockquote{font-size:24px}
+ .duo{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;align-items:start}
+ .planos{grid-template-columns:repeat(3,minmax(0,1fr))}
+ .texto-b{max-width:780px;margin-left:auto;margin-right:auto}
+ .infos{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .pet-flut{width:120px;height:120px;right:32px;bottom:32px}.pet-flut .corpo-f{font-size:60px}.pet-flut .corpo-f img{width:76px}
+ h2.tit{font-size:40px}
+ .lista.sec:not(.planos){max-width:900px}
+}
+@media (min-width:1280px){.infos{grid-template-columns:repeat(2,minmax(0,1fr))}.home-grid{grid-template-columns:minmax(0,1.1fr) minmax(0,1fr)}}
+@media (max-width:380px){.principais{gap:6px}.principal{font-size:11px;padding:12px 2px 10px}.principal span{font-size:22px}.saud h1{font-size:24px}.nav button{font-size:9px}}
+
+.alerta{position:relative;overflow:hidden;display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:14px;padding:14px 16px;border-radius:22px;border:1.5px solid color-mix(in srgb,var(--acc) 55%,transparent);background:linear-gradient(135deg,color-mix(in srgb,var(--acc) 22%,var(--glass2)),var(--glass2));box-shadow:0 14px 30px -18px var(--acc),inset 0 1px 0 rgba(255,255,255,.6);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.alerta::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:linear-gradient(180deg,var(--acc),var(--acc2))}
+.alerta .al-ic{font-size:28px;animation:sino 2.8s ease-in-out infinite;transform-origin:50% 10%}
+@keyframes sino{0%,70%,100%{transform:rotate(0)}75%{transform:rotate(14deg)}82%{transform:rotate(-12deg)}89%{transform:rotate(6deg)}}
+.alerta>div{flex:1;min-width:150px}.alerta small{display:block;font-weight:800;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--acc)}.alerta b{display:block;font-size:17px;margin:2px 0}.alerta span{color:var(--sub);font-size:13px}.alerta em{color:var(--menst);font-style:normal;font-weight:800}
+.alerta .al-acoes{display:flex;gap:6px;flex:none}
+.alerta.agora{animation:pulsaAl 2.4s ease-in-out infinite}
+@keyframes pulsaAl{50%{box-shadow:0 0 0 6px color-mix(in srgb,var(--acc) 22%,transparent),0 14px 30px -18px var(--acc)}}
+.alerta.ok{border-color:color-mix(in srgb,var(--ok) 50%,transparent)}.alerta.ok small{color:var(--ok)}
+@media (prefers-reduced-motion:reduce){.alerta .al-ic,.alerta.agora{animation:none}.cad-fx i,.cad-orb .aro{animation:none}.btn.p::after,.principal::after,.pet-flut{animation:none}.agora-linha::before{animation:none}.ambiente,.bolha::after,.nuvem,.particulas i,.bicho .corpo,.ovo,.avatar,.avatar img,.liq i::after{animation:none}}
+
 @media (prefers-reduced-motion:reduce){.pagina{animation:none}.trilho i{transition:none}}
 </style>
 </head>
@@ -399,6 +431,7 @@ dialog.dlg-pet{width:min(94vw,460px);max-height:92vh;overflow:auto}
   <section class="pagina" id="p-perfil"></section>
   <section class="pagina" id="p-biblia"></section>
   <section class="pagina" id="p-ler"></section>
+  <section class="pagina" id="p-historico"></section>
  </main>
 </div>
 <nav class="nav" id="nav" aria-label="Menu"></nav>
@@ -640,10 +673,10 @@ setInterval(checarLembretes,30000);document.addEventListener('visibilitychange',
 
 /* ---------- v4: flutuante, banner, árvore, bíblia ---------- */
 function petSheet(){const h=hoje();const p=S.pet,E=ESP[p.esp],x=xp(),f=faseDe(x);const prox=FASES[f+1]?FASES[f+1][1]:FIM;const base=FASES[f][1];const pp=Math.min(100,Math.round((x-base)/(prox-base)*100));const cd=cuidadoDia(h);
- const barra=(n,val,cor)=>`<div class="barra">${n}<div class="liq"><i style="width:${Math.round(val*100)}%;--c:${cor}"></i></div><b>${Math.round(val*100)}%</b></div>`;
+ const barra=(n,val,cor,k)=>`<button class="barra" data-acao="hist-ir" data-v="${k}" style="border:0;background:none;width:100%;color:inherit;font:inherit;padding:0">${n}<div class="liq"><i style="width:${Math.round(val*100)}%;--c:${cor}"></i></div><b>${Math.round(val*100)}% ›</b></button>`;
  return `${terrario()}<div class="pet-info"><div><small>${f===0?'Ovo · quem será? 🥚':(E.raro?'✨ Lendário · ':'')+E.n+' · '+FASES[f][0]}</small><br><b>${esc(nomePet())}</b></div><span class="nivel">nv.${f+1} · ${f===0?'nascendo · '+Math.round(x/FASES[1][1]*100)+'%':pp+'%'}</span></div>
  <div class="liq xp"><i style="width:${f===0?Math.round(x/FASES[1][1]*100):pp}%;--c:var(--acc2)"></i></div><p class="dica" style="margin-top:6px;text-align:center">Dia ${difDias(p.nasc,h)+1} de vida · cresce quando você cuida da sua rotina</p>
- <div class="vidro barras">${barra('💧 Água',cd.agua,'#4aa8ff')}${barra('💪 Treino',cd.treino,'#ff8a5c')}${barra('📖 Fé',cd.fe,'#c49bff')}${barra('🌳 Rotina',cd.rotina,'#3ccf9a')}</div>
+ <div class="vidro barras">${barra('💧 Água',cd.agua,'#4aa8ff','agua')}${barra('💪 Treino',cd.treino,'#ff8a5c','treino')}${barra('📖 Fé',cd.fe,'#c49bff','fe')}${barra('🌳 Rotina',cd.rotina,'#3ccf9a','rotina')}</div>
  <div class="principais">${principais(cd)}</div><div class="dlg-acoes"><button class="btn" data-fechar>Fechar</button></div>`}
 function principais(cd){return `<button class="principal ${cd.agua>=1?'ok':''}" style="--c1:#7cc8ff;--c2:#2f86e8" data-acao="agua-mais"><span>💧</span>Beber</button>
  <button class="principal ${cd.fe?'ok':''}" style="--c1:#d6b4ff;--c2:#8b5cf6;--dl:.6s" data-ir="biblia"><span>📖</span>Ler</button>
@@ -674,9 +707,9 @@ function arvoreSVG(itens,mini){const n=itens.length,feitos=itens.filter(i=>i.ok)
  return `<svg viewBox="0 0 360 345" role="img" aria-label="Árvore da rotina: ${feitos} de ${n}">${chao}${tronco}${copa}${fr}${fa}</svg>`}
 function arvore(){const h=hoje();const it=itensArvore(h);const f=it.filter(i=>i.ok).length;const cheia=it.length&&f===it.length;
  const dias=Array.from({length:7},(_,i)=>somaDias(h,i-6));
- return `<div class="vidro arvore ${cheia?'cheia':''}"><div class="arv-top"><b>Árvore de hoje</b><span>${f}/${it.length} 🌸</span></div>
+ return `<div class="vidro arvore ${cheia?'cheia':''}"><div class="arv-top"><b>Árvore de hoje</b><button class="btn peq" data-acao="hist-ir" data-v="rotina">${f}/${it.length} 🌸 · histórico</button></div>
  <p class="dica" style="margin:4px 0 0">${cheia?'Árvore florida! Você concluiu tudo hoje 💜':'Toque num botão da árvore para florescer cada bloco e hábito do dia.'}</p>${arvoreSVG(it)}
- <div class="floresta">${dias.map(d=>{const x=itensArvore(d);const k=x.length?Math.round(x.filter(i=>i.ok).length/x.length*100):0;return `<div title="${k}%">${arvoreSVG(x,true)}${parse(d).toLocaleDateString('pt-BR',{weekday:'short'}).slice(0,3)}</div>`}).join('')}</div></div>`}
+ <div class="floresta">${dias.map(d=>{const x=itensArvore(d);const k=x.length?Math.round(x.filter(i=>i.ok).length/x.length*100):0;return `<button title="${k}%" data-acao="dia-det" data-v="${d}" style="border:0;background:none;display:grid;justify-items:center;gap:2px;font:800 10px var(--sans);color:var(--sub);padding:0">${arvoreSVG(x,true)}${parse(d).toLocaleDateString('pt-BR',{weekday:'short'}).slice(0,3)}<span style="color:var(--acc)">${k}%</span></button>`}).join('')}</div></div>`}
 /* bíblia */
 const BIB={idx:null,livros:{},car:{}};
 function bibCarregar(what){if(BIB.car[what])return;BIB.car[what]=1;const url=what==='idx'?'biblia/indice.json':'biblia/'+pad(what)+'.json';
@@ -694,8 +727,8 @@ function biblia(){if(!BIB.idx){bibCarregar('idx');return `<h2 class="tit">Bíbli
  const b=B(),h=hoje();const ps=Object.keys(b.salmos).length;let sal=1;while(b.salmos[sal]&&sal<150)sal++;const dm=Math.min(31,+h.slice(8));const pmes=Object.keys(b.prov).filter(d=>d.slice(0,7)===h.slice(0,7)).length;
  const A=planoAnual();const an=b.anual;let diaA=0,feitosA=0,atras=0;if(an.inicio){const hojeIdx=Math.min(364,difDias(an.inicio,h));feitosA=Object.keys(an.dias).length;diaA=0;while(an.dias[diaA]&&diaA<364)diaA++;atras=Math.max(0,hojeIdx-diaA)}
  const card=(ic2,t,sub,hojeTxt,pct,acoes)=>`<div class="vidro plano tilt"><div class="plano-h"><span class="ii">${ic2}</span><div><b>${t}</b><small>${sub}</small></div></div><div class="hoje">${hojeTxt}</div><div class="trilho" style="margin:0"><i style="width:${pct}%"></i></div><div class="acoes2">${acoes}</div></div>`;
- return `<h2 class="tit">Bíblia</h2><p class="sub">Leitura diária · ${b.salmos&&ps+pmes+feitosA?'você está indo muito bem 💜':'escolha um plano para começar'}</p>
- <div class="lista sec" style="gap:12px">
+ return `<h2 class="tit">Bíblia</h2><button class="btn peq" style="margin:4px 0 6px" data-acao="hist-ir" data-v="fe">📖 Histórico de leitura</button><p class="sub">Leitura diária · ${b.salmos&&ps+pmes+feitosA?'você está indo muito bem 💜':'escolha um plano para começar'}</p>
+ <div class="lista sec planos" style="gap:12px">
  ${card('🕊️','Salmos','Um salmo por dia · '+ps+' de 150',ps>=150?'Você leu todos os Salmos! 🎉':'Hoje: Salmo '+sal+(b.salmos[sal]?' ✓':''),Math.round(ps/150*100),`<button class="btn p" data-acao="ler-plano" data-v="salmos">${ic('livro')} Ler Salmo ${sal}</button>`)}
  ${card('🦉','Provérbios','Um capítulo por dia do mês · '+pmes+' lido(s) este mês','Hoje: Provérbios '+dm+(b.prov[h]?' ✓':''),Math.round(pmes/31*100),`<button class="btn p" data-acao="ler-plano" data-v="prov">${ic('livro')} Ler Provérbios ${dm}</button>`)}
  ${an.inicio?card('📜','Bíblia em 1 ano','Dia '+(diaA+1)+' de 365 · '+feitosA+' dia(s) concluído(s)'+(atras?' · '+atras+' atrasado(s)':''),'Hoje: '+refTxt(A[diaA]),Math.round(feitosA/365*100),`<button class="btn p" data-acao="ler-plano" data-v="anual">${ic('livro')} Ler o dia ${diaA+1}</button><button class="btn" data-acao="anual-reiniciar">Recomeçar</button>`)
@@ -721,14 +754,57 @@ function editarTexto(tit,val,cb,extra=''){dlg(`<h3>${tit}</h3><form style="displ
 document.addEventListener('pointermove',e=>{const g=e.target.closest&&e.target.closest('.tilt');if(!g)return;const b=g.getBoundingClientRect();const x=(e.clientX-b.left)/b.width-.5,y=(e.clientY-b.top)/b.height-.5;g.style.transform=`perspective(800px) rotateX(${(-y*7).toFixed(2)}deg) rotateY(${(x*9).toFixed(2)}deg)`;g.style.setProperty('--mx',(e.clientX-b.left)+'px');g.style.setProperty('--my',(e.clientY-b.top)+'px')},{passive:true});
 document.addEventListener('pointerout',e=>{const g=e.target.closest&&e.target.closest('.tilt');if(g&&!g.contains(e.relatedTarget))g.style.transform=''},{passive:true});
 
+
+/* ---------- histórico ---------- */
+let histTipo='agua',finFiltro=null;
+const HT={agua:['💧','Água'],treino:['💪','Treino'],fe:['📖','Fé e leitura'],rotina:['🌳','Rotina'],fin:['💰','Finanças']};
+function historico(){const h=hoje();const dias=Array.from({length:30},(_,i)=>somaDias(h,-i));let corpo='',resumo='';
+ const chips=`<div class="tags" style="margin-top:12px">${Object.entries(HT).map(([k,[e,n]])=>`<button class="tag ${histTipo===k?'on':''}" data-acao="hist" data-v="${k}">${e} ${n}</button>`).join('')}</div>`;
+ const linhaDia=(d,val,txt,pct)=>`<button class="linha" data-acao="dia-det" data-v="${d}" style="text-align:left;color:inherit;font:inherit;width:100%"><span>${d===h?'Hoje':fmtData(d,{weekday:'short',day:'2-digit',month:'short'})}<small>${txt}</small></span><div class="trilho" style="margin:0;width:38%"><i style="width:${pct}%"></i></div><b style="min-width:44px;text-align:right">${val}</b></button>`;
+ if(histTipo==='agua'){const v=dias.map(d=>S.agua[d]||0);const med=(v.reduce((a,b)=>a+b,0)/30).toFixed(1).replace('.',',');const bat=v.filter(x=>x>=S.meta_agua).length;
+  resumo=`Média de ${med} copos por dia · meta batida em ${bat} de 30 dias`;corpo=dias.map((d,i)=>linhaDia(d,v[i]+'/'+S.meta_agua,(v[i]*250)+' ml',Math.min(100,v[i]/S.meta_agua*100))).join('')}
+ else if(histTipo==='treino'){const f=dias.filter(d=>S.treino.feitos.includes(d)).length;resumo=`${f} treino(s) nos últimos 30 dias · ${S.treino.feitos.filter(d=>d.slice(0,7)===h.slice(0,7)).length} este mês`;
+  corpo=dias.map(d=>{const p=S.treino.plano[parse(d).getDay()];const ok=S.treino.feitos.includes(d);return linhaDia(d,ok?'✓':(p&&p.ex.length?'—':'💤'),p?p.n:'Descanso',ok?100:0)}).join('')}
+ else if(histTipo==='fe'){const b=B();const lidos=[];Object.entries(b.salmos||{}).forEach(([n,d])=>lidos.push([d,'Salmo '+n]));Object.keys(b.prov||{}).forEach(d=>lidos.push([d,'Provérbios '+Math.min(31,+d.slice(8))]));Object.entries((b.anual||{}).dias||{}).forEach(([k,d])=>lidos.push([d,'Bíblia em 1 ano · dia '+(+k+1)]));
+  const f=dias.filter(d=>S.fe[d]).length;resumo=`${f} dia(s) com leitura nos últimos 30 · ${lidos.length} leitura(s) concluída(s)`;
+  corpo=dias.map(d=>{const l=lidos.filter(x=>x[0]===d).map(x=>x[1]);return linhaDia(d,S.fe[d]?'✓':'—',l.length?l.join(', '):(S.fe[d]?'versículo do dia':'sem leitura'),S.fe[d]?100:0)}).join('')}
+ else if(histTipo==='rotina'){const v=dias.map(d=>{const x=itensArvore(d);return x.length?Math.round(x.filter(i=>i.ok).length/x.length*100):0});resumo=`Média de ${Math.round(v.reduce((a,b)=>a+b,0)/30)}% da rotina concluída · ${v.filter(x=>x===100).length} árvore(s) florida(s)`;
+  corpo=dias.map((d,i)=>{const x=itensArvore(d);return linhaDia(d,v[i]+'%',x.filter(k=>k.ok).length+' de '+x.length+' concluídos',v[i])}).join('')}
+ else{const meses=[...new Set(S.fin.map(f=>f.d.slice(0,7)))].sort().reverse();resumo=meses.length?`${meses.length} mês(es) com lançamentos`:'Nenhum lançamento ainda';
+  corpo=meses.map(m=>{const L=S.fin.filter(f=>f.d.slice(0,7)===m);const e=L.filter(f=>f.tipo==='e').reduce((a,f)=>a+f.v,0),sa=L.filter(f=>f.tipo==='s').reduce((a,f)=>a+f.v,0);const [y,mm]=m.split('-').map(Number);
+   return `<button class="linha" data-acao="fin-ir" data-v="${m}" style="text-align:left;color:inherit;font:inherit;width:100%"><span>${new Date(y,mm-1,1).toLocaleDateString('pt-BR',{month:'long',year:'numeric'})}<small>entrou ${brl(e)} · saiu ${brl(sa)}</small></span><b class="${e-sa>=0?'pos':'neg'}">${brl(e-sa)}</b>${ic('seta')}</button>`}).join('')||'<p class="vazio">Sem histórico.</p>'}
+ return `<h2 class="tit">Histórico</h2><p class="sub">Toque num dia para ver os detalhes</p>${chips}<div class="vidro cartao sec"><b>${HT[histTipo][0]} ${HT[histTipo][1]}</b><p class="sub" style="font-size:14px;margin-top:4px">${resumo}</p></div><div class="lista sec">${corpo}</div>`}
+function diaDetalhe(d){const x=itensArvore(d);const tr=S.treino.feitos.includes(d);const ag=S.agua[d]||0;const fins=S.fin.filter(f=>f.d===d);
+ dlg(`<h3>${fmtData(d,{weekday:'long',day:'numeric',month:'long'})}</h3><div class="lista">${x.map(i=>`<div class="linha ${i.ok?'':'feito'}"><span>${i.ok?'🌸':'○'} ${esc(i.t)}</span></div>`).join('')}
+ <div class="linha"><span>💧 Água: ${ag} copo(s)</span></div><div class="linha"><span>💪 Treino: ${tr?'concluído ✓':'não feito'}</span></div><div class="linha"><span>📖 Fé: ${S.fe[d]?'leitura feita ✓':'—'}</span></div>
+ ${fins.map(f=>`<div class="linha"><span>${f.tipo==='e'?'⬆️':'⬇️'} ${esc(f.desc)}</span><b class="${f.tipo==='e'?'pos':'neg'}">${brl(f.v)}</b></div>`).join('')}</div><div class="dlg-acoes"><button class="btn" data-fechar>Fechar</button></div>`,()=>{})}
+
+
+function proximaTarefa(){const h=hoje();const dt=new Date();const ag=dt.getHours()*60+dt.getMinutes();const bf=S.blocosFeitos[h]||{};const bl=blocosDe(h);
+ const atras=bl.filter(b=>!bf[b.id]&&minDe(b.fim)<=ag);
+ const b=bl.find(b=>!bf[b.id]&&minDe(b.fim)>ag);
+ const cmp=S.agenda.filter(a=>a.d===h&&a.h&&!a.ok&&minDe(a.h)>=ag-30).sort((x,y)=>x.h.localeCompare(y.h))[0];
+ let it=null;
+ if(b&&(!cmp||minDe(b.ini)<=minDe(cmp.h)))it={tipo:'bloco',id:b.id,t:b.t,ini:b.ini,fim:b.fim,m:minDe(b.ini)};
+ else if(cmp)it={tipo:'agenda',id:cmp.id,t:cmp.t,ini:cmp.h,m:minDe(cmp.h)};
+ else{const t=S.tarefas.find(t=>!t.feito);if(t)it={tipo:'tarefa',id:t.id,t:t.t}}
+ return {it,atras,ag}}
+function alertaProxima(){const {it,atras,ag}=proximaTarefa();
+ if(!it&&!atras.length)return `<div class="alerta ok"><span class="al-ic">✨</span><div><small>Próxima tarefa</small><b>Tudo concluído por hoje!</b><span>Aproveite seu descanso 💜</span></div></div>`;
+ let quando='';if(it&&it.m!=null){const d=it.m-ag;quando=d<=0?(it.fim?'agora · até '+it.fim:'agora'):d<60?'em '+d+' min · '+it.ini:'às '+it.ini}else if(it)quando='tarefa sem horário';
+ const agora=it&&it.m!=null&&it.m-ag<=0;
+ return `<div class="alerta ${agora?'agora':''}" role="status"><span class="al-ic">${agora?'⏰':'🔔'}</span><div><small>${agora?'Acontecendo agora':'Próxima tarefa'}</small><b>${it?esc(it.t):'Blocos atrasados'}</b><span>${quando}${atras.length?` · <em>${atras.length} atrasado(s)</em>`:''}</span></div>
+ <div class="al-acoes">${it?`<button class="btn p peq" data-acao="prox-ok" data-tipo="${it.tipo}" data-id="${it.id}">Concluir ✓</button>`:''}<button class="btn peq" data-ir="rotina">Rotina ›</button></div></div>`}
+setInterval(()=>{if(tela==='inicio'&&!document.hidden){const a=document.querySelector('.alerta');if(a)a.outerHTML=alertaProxima()}},30000);
+
 /* ---------- telas ---------- */
-const TELAS={inicio,rotina,ciclo:telaCiclo,treino,financas,metas,perfil,biblia,ler:telaLer};
+const TELAS={inicio,rotina,ciclo:telaCiclo,treino,financas,metas,perfil,biblia,ler:telaLer,historico};
 const NAV=[['inicio','Início','casa'],['rotina','Rotina','rotina'],['biblia','Bíblia','livro'],['ciclo','Ciclo','flor'],['treino','Treino','halter'],['perfil','Perfil','perfil']];
 const HIST={b:[],f:[]};let porHist=false;
 let tela='inicio';
 function ir(t,topo=true){if(!TELAS[t])t='inicio';if(!porHist&&t!==tela){HIST.b.push(tela);HIST.f=[]}porHist=false;tela=t;if(location.hash.slice(1)!==t)history.replaceState(null,'','#'+t);render();if(topo)scrollTo({top:0})}
 function render(){if(S.pet)cuidarPet();const amb=$('#ambiente');if(amb&&!amb.dataset.ok){amb.style.backgroundImage='url('+foto()+')';amb.dataset.ok=1}document.querySelectorAll('.pagina').forEach(p=>{const on=p.id==='p-'+tela;p.classList.toggle('on',on);if(!on)p.innerHTML=''});const el=$('#p-'+tela);el.innerHTML=TELAS[tela]();
- const navAtivo=NAV.some(n=>n[0]===tela)?tela:(tela==='ler'?'biblia':(tela==='financas'||tela==='metas'?'inicio':tela));const gn=$('#gnav');if(gn){gn.querySelector('[data-acao=nav-voltar]').disabled=!HIST.b.length;gn.querySelector('[data-acao=nav-avancar]').disabled=!HIST.f.length;gn.querySelector('[data-acao=nav-inicio]').classList.toggle('on',tela==='inicio')}petFlutuante();const dd=$('#dlg');if(dd.open&&dd.dataset.tipo==='pet'){const w=dd.querySelector('.pet-wrap');if(w)w.innerHTML=petSheet()}
+ const navAtivo=NAV.some(n=>n[0]===tela)?tela:(tela==='ler'?'biblia':(['financas','metas','historico'].includes(tela)?'inicio':tela));const gn=$('#gnav');if(gn){gn.querySelector('[data-acao=nav-voltar]').disabled=!HIST.b.length;gn.querySelector('[data-acao=nav-avancar]').disabled=!HIST.f.length;gn.querySelector('[data-acao=nav-inicio]').classList.toggle('on',tela==='inicio')}petFlutuante();const dd=$('#dlg');if(dd.open&&dd.dataset.tipo==='pet'){const w=dd.querySelector('.pet-wrap');if(w)w.innerHTML=petSheet()}
  $('#nav').innerHTML=NAV.map(([id,l,i])=>'<button data-ir="'+id+'" class="'+(id===navAtivo?'on':'')+'" aria-label="'+l+'">'+ic(i)+'<span>'+l+'</span></button>').join('');
  $('#sino').classList.toggle('tem',lembretes().length>0);checarEvolucao();if(avisoPet){const av=avisoPet;avisoPet=null;setTimeout(()=>dlg(`<h3>${av.t}</h3><p class="sub" style="font-size:15px">${av.m}</p><div class="dlg-acoes"><button class="btn p" data-fechar>Vamos lá!</button></div>`,()=>{}),400)}
  const m=document.querySelector('meta[name=theme-color]');if(m)m.content=getComputedStyle(document.documentElement).getPropertyValue('--bg-top').trim()}
@@ -740,11 +816,12 @@ function inicio(){const r=rotinaHoje();const pct=r.total?Math.round(r.feitos/r.t
  const b=B();let sal=1;while(b.salmos[sal]&&sal<150)sal++;const dm=Math.min(31,+h.slice(8));
  const L=S.fin.filter(f=>f.d.slice(0,7)===h.slice(0,7));const saldo=L.reduce((a,f)=>a+(f.tipo==='e'?f.v:-f.v),0);const m0=S.metas[0];
  const agenda=S.agenda.filter(a=>!a.ok&&difDias(h,a.d)>=0).sort((a,b)=>(a.d+(a.h||'')).localeCompare(b.d+(b.h||'')))[0];const copiaAtrasada=Date.now()-(S.ultimaCopia||0)>7*864e5;
- return `<div class="saud"><div class="avatar"><img src="${avatar()}" alt="Foto da ${esc(S.nome)}"></div><div><small>${parse(h).toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'})}</small><h1>${sauda}, ${esc(S.nome)} 💜</h1><p class="sub" style="font-size:14px">Seu dia, no seu ritmo.</p></div></div>
+ return `<div class="home-grid"><div class="col-a"><div class="saud"><div class="avatar"><img src="${avatar()}" alt="Foto da ${esc(S.nome)}"></div><div><small>${parse(h).toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'})}</small><h1>${sauda}, ${esc(S.nome)} 💜</h1><p class="sub" style="font-size:14px">Seu dia, no seu ritmo.</p></div></div>
+ ${alertaProxima()}
  <button class="vidro banner tilt" style="background-image:linear-gradient(135deg,color-mix(in srgb,var(--acc) 35%,transparent),transparent 60%),url(${foto()})" data-acao="ler"><span class="brilho"></span><span class="chip-d">📖 Versículo do dia</span><blockquote>“${esc(v)}”</blockquote><span class="ref">${esc(ref)} · toque para meditar</span></button>
  <div class="principais">${principais(cd)}</div>
  <button class="vidro jornada tilt" data-ir="rotina"><div><b>Sua jornada hoje</b><small>${r.feitos} de ${r.total} ${r.total===1?'item':'itens'} · ${pct}%${atual?' · agora: '+esc(atual.t):''}</small><div class="trilho"><i style="width:${pct}%"></i></div></div>${ic('seta')}</button>
- <div class="infos">
+ </div><div class="col-b"><div class="infos">
   <button class="vidro info tilt" data-ir="rotina"><span class="ii">⏰</span><small>Próximo bloco</small><b>${prox?esc(prox.t):'Tudo em dia'}</b><span>${prox?prox.ini+'–'+prox.fim:'nenhum bloco pendente'}</span></button>
   <button class="vidro info tilt" data-ir="rotina"><span class="ii">🌳</span><small>Árvore de hoje</small><b>${fa} de ${it.length} flores</b><span>${fa===it.length&&it.length?'florida! ✨':'toque para florescer'}</span></button>
   <button class="vidro info tilt" data-ir="biblia"><span class="ii">📖</span><small>Bíblia hoje</small><b>Salmo ${sal} · Pv ${dm}</b><span>${b.anual.inicio?'plano anual em andamento':'planos de leitura'}</span></button>
@@ -752,14 +829,15 @@ function inicio(){const r=rotinaHoje();const pct=r.total?Math.round(r.feitos/r.t
   <button class="vidro info tilt" data-ir="ciclo"><span class="ii">🌸</span><small>Ciclo</small><b>${c?c.fase:'Configurar'}</b><span>${c?'dia '+c.diaCiclo+' · próxima em '+c.faltam+'d':'informe a última menstruação'}</span></button>
   <button class="vidro info tilt" data-ir="financas"><span class="ii">💰</span><small>Finanças do mês</small><b class="${saldo>=0?'pos':'neg'}">${brl(saldo)}</b><span>${L.length} lançamento(s)</span></button>
   <button class="vidro info tilt" data-ir="metas"><span class="ii">🎯</span><small>Metas</small><b>${m0?esc(m0.t):'Criar meta'}</b><span>${m0?Math.min(100,Math.round(m0.atual/m0.alvo*100))+'%':'defina um objetivo'}</span></button>
+  <button class="vidro info tilt" data-acao="hist-ir" data-v="agua"><span class="ii">📊</span><small>Histórico</small><b>Água ${S.agua[h]||0}/${S.meta_agua} hoje</b><span>água, treino, fé, rotina e finanças</span></button>
   <button class="vidro info tilt" data-ir="rotina"><span class="ii">📅</span><small>Agenda</small><b>${agenda?esc(agenda.t):'Livre'}</b><span>${agenda?(agenda.d===h?'hoje':fmtData(agenda.d))+(agenda.h?' · '+agenda.h:''):'sem compromissos'}</span></button>
   ${copiaAtrasada?`<button class="vidro info larga aviso-copia" data-acao="copia"><small>Cópia de segurança</small><b>Guardar uma cópia agora</b><span>além da nuvem, uma cópia extra no aparelho</span></button>`:''}
  </div>
- <p class="dica" style="text-align:center;margin-top:14px">${esc(nomePet())} está flutuando por aí · toque nele 💜</p>`}
+ <p class="dica" style="text-align:center;margin-top:14px">${esc(nomePet())} está flutuando por aí · toque nele 💜</p></div></div>`}
 
 function rotina(){const h=hoje();const r=rotinaHoje();const hd=S.habDias[h]||{};const ag=S.agua[h]||0;
  const agenda=S.agenda.filter(a=>difDias(h,a.d)>=0||!a.ok).sort((a,b)=>(a.d+(a.h||'')).localeCompare(b.d+(b.h||'')));
- return `<h2 class="tit">Minha rotina</h2><p class="sub">${fmtData(h,{weekday:'long',day:'numeric',month:'long'})}</p>${arvore()}${blocosDia()}
+ return `<h2 class="tit">Minha rotina</h2><p class="sub">${fmtData(h,{weekday:'long',day:'numeric',month:'long'})}</p><div class="duo">${arvore()}${blocosDia()}</div>
  <div class="sec"><h3>Tarefas</h3><div class="lista">${r.tar.length?r.tar.map(t=>`<div class="linha ${t.feito?'feito':''}"><button class="ck ${t.feito?'on':''}" data-acao="tarefa" data-id="${t.id}" aria-label="Concluir">${ic('check')}</button><span>${esc(t.t)}</span><button class="ed2" data-acao="tarefa-ed" data-id="${t.id}" aria-label="Editar">${ic('lapis')}</button><button class="x" data-acao="tarefa-x" data-id="${t.id}" aria-label="Apagar">${ic('x')}</button></div>`).join(''):'<p class="vazio">Nenhuma tarefa. Que tal anotar a primeira?</p>'}</div>
   <form class="add" data-form="tarefa"><input name="t" placeholder="Nova tarefa" maxlength="100" required><button class="btn p" aria-label="Adicionar tarefa">${ic('mais')}</button></form>
   <p class="dica">Tarefa que não for feita continua aqui até você concluir.</p></div>
@@ -792,7 +870,7 @@ function calendario(){const [y,m]=calMes.split('-').map(Number);const pri=new Da
 
 function treino(){const h=hoje();const dw=new Date().getDay();const tr=treinoHoje();const ck=S.treino.checks[h]||{};const feito=S.treino.feitos.includes(h);
  const seg=somaDias(h,-((dw+6)%7));const mes=S.treino.feitos.filter(d=>d.slice(0,7)===h.slice(0,7)).length;
- return `${voltar}<h2 class="tit">Meu treino</h2><p class="sub">${mes} treino(s) concluído(s) este mês</p>
+ return `${voltar}<h2 class="tit">Meu treino</h2><button class="btn peq" style="margin-top:4px" data-acao="hist-ir" data-v="treino">💪 ${mes} treino(s) este mês · ver histórico</button>
  ${S.treino.provisorio?'<p class="dica" style="margin-top:8px">Treino de exemplo. Toque em “Editar treino” para colocar o seu.</p>':''}
  <div class="semana sec">${Array.from({length:7},(_,i)=>{const d=somaDias(seg,i);const p=S.treino.plano[parse(d).getDay()];return `<div class="dia ${d===h?'hoje':''} ${S.treino.feitos.includes(d)?'feito':''}">${['S','T','Q','Q','S','S','D'][i]}<b>${+d.slice(8)}</b>${p&&p.ex.length?'•':''}</div>`}).join('')}</div>
  <div class="vidro cartao sec"><p class="fase">${esc(tr.n)}</p>${tr.ex.length?`<div class="lista" style="margin-top:10px">${tr.ex.map((e,i)=>`<div class="linha ex ${ck[i]?'feito':''}"><button class="ck ${ck[i]?'on':''}" data-acao="ex" data-i="${i}" aria-label="Marcar exercício">${ic('check')}</button><span>${esc(e.n)}</span><small>${esc(e.s)}</small></div>`).join('')}</div>
@@ -804,11 +882,11 @@ function financas(){if(!finMes)finMes=hoje().slice(0,7);const L=S.fin.filter(f=>
  const ent=L.filter(f=>f.tipo==='e').reduce((a,f)=>a+f.v,0),sai=L.filter(f=>f.tipo==='s').reduce((a,f)=>a+f.v,0);const cats={};L.filter(f=>f.tipo==='s').forEach(f=>cats[f.c]=(cats[f.c]||0)+f.v);
  const mx=Math.max(1,...Object.values(cats));const [y,m]=finMes.split('-').map(Number);
  return `${voltar}<h2 class="tit">Finanças</h2><div class="cal-nav sec"><button class="x" data-acao="fin-mes" data-v="-1" aria-label="Mês anterior">${ic('volta')}</button><b>${new Date(y,m-1,1).toLocaleDateString('pt-BR',{month:'long',year:'numeric'})}</b><button class="x" data-acao="fin-mes" data-v="1" aria-label="Próximo mês">${ic('seta')}</button></div>
- <div class="kpis"><div class="kpi"><small>Entrou</small><b class="pos">${brl(ent)}</b></div><div class="kpi"><small>Saiu</small><b class="neg">${brl(sai)}</b></div><div class="kpi"><small>Saldo</small><b class="${ent-sai>=0?'pos':'neg'}">${brl(ent-sai)}</b></div></div>
+ <div class="kpis"><button class="kpi ${finFiltro==='e'?'sel':''}" data-acao="fin-filtro" data-v="e"><small>Entrou ›</small><b class="pos">${brl(ent)}</b></button><button class="kpi ${finFiltro==='s'?'sel':''}" data-acao="fin-filtro" data-v="s"><small>Saiu ›</small><b class="neg">${brl(sai)}</b></button><button class="kpi" data-acao="hist-ir" data-v="fin"><small>Saldo · meses ›</small><b class="${ent-sai>=0?'pos':'neg'}">${brl(ent-sai)}</b></button></div>
  <form class="vidro cartao sec" data-form="fin" style="display:grid;gap:8px"><div class="grade2"><select name="tipo" aria-label="Tipo"><option value="s">Saída (gasto)</option><option value="e">Entrada</option></select><input name="v" inputmode="decimal" placeholder="Valor (R$)" required aria-label="Valor"></div>
   <input name="desc" placeholder="Descrição. Ex.: mercado" maxlength="60" required><div class="grade2"><select name="c" aria-label="Categoria">${['Casa','Mercado','Transporte','Saúde','Beleza','Lazer','Roupas','Dízimo e ofertas','Contas','Salário','Outros'].map(c=>'<option>'+c+'</option>').join('')}</select><input name="d" type="date" value="${hoje()}" required aria-label="Data"></div><button class="btn p cheio">Lançar</button></form>
  ${Object.keys(cats).length?`<div class="sec"><h3>Para onde foi o dinheiro</h3><div class="vidro cartao" style="display:grid;gap:10px">${Object.entries(cats).sort((a,b)=>b[1]-a[1]).map(([c,v])=>`<div class="barra-cat"><span>${esc(c)}</span><div class="trilho" style="margin:0"><i style="width:${v/mx*100}%"></i></div><b>${brl(v)}</b></div>`).join('')}</div></div>`:''}
- <div class="sec"><h3>Lançamentos</h3><div class="lista">${L.length?L.map(f=>`<div class="linha"><span>${esc(f.desc)}<small>${fmtData(f.d)} · ${esc(f.c)}</small></span><b class="${f.tipo==='e'?'pos':'neg'}">${f.tipo==='e'?'+':'−'} ${brl(f.v)}</b><button class="ed2" data-acao="fin-ed" data-id="${f.id}" aria-label="Editar">${ic('lapis')}</button><button class="x" data-acao="fin-x" data-id="${f.id}" aria-label="Apagar">${ic('x')}</button></div>`).join(''):'<p class="vazio">Nenhum lançamento neste mês.</p>'}</div></div>`}
+ <div class="sec"><h3>Lançamentos${finFiltro?` · ${finFiltro==='e'?'entradas':'saídas'} <button class="btn peq" data-acao="fin-filtro" data-v="">ver todos</button>`:''}</h3><div class="lista">${L.length?L.filter(f=>!finFiltro||f.tipo===finFiltro).map(f=>`<div class="linha"><span>${esc(f.desc)}<small>${fmtData(f.d)} · ${esc(f.c)}</small></span><b class="${f.tipo==='e'?'pos':'neg'}">${f.tipo==='e'?'+':'−'} ${brl(f.v)}</b><button class="ed2" data-acao="fin-ed" data-id="${f.id}" aria-label="Editar">${ic('lapis')}</button><button class="x" data-acao="fin-x" data-id="${f.id}" aria-label="Apagar">${ic('x')}</button></div>`).join(''):'<p class="vazio">Nenhum lançamento neste mês.</p>'}</div></div>`}
 
 function metas(){return `${voltar}<h2 class="tit">Minhas metas</h2><p class="sub">Atualize quando avançar. Cada passo conta.</p>
  <div class="lista sec">${S.metas.map(m=>{const p=m.alvo?Math.min(100,Math.round(m.atual/m.alvo*100)):0;const fmt=v=>m.un==='R$'?brl(v):v+' '+esc(m.un);return `<div class="meta-l"><div class="row"><b>${esc(m.t)}</b><button class="x" data-acao="meta-x" data-id="${m.id}" aria-label="Apagar meta">${ic('x')}</button></div><div class="trilho" style="margin:0"><i style="width:${p}%"></i></div>
@@ -884,6 +962,12 @@ document.addEventListener('click',e=>{const a=e.target.closest('[data-ir],[data-
  case 'ler-ok':{if(!leitura)return;const b=B();if(leitura.chave==='salmos')b.salmos[leitura.refs[0][1]]=h;else if(leitura.chave==='prov')b.prov[h]=true;else if(leitura.chave==='anual')b.anual.dias[leitura.dia]=h;const l=leitura.refs[leitura.refs.length-1];b.ult={b:l[0],c:l[1]};
   if(!S.fe[h]){S.fe[h]=true;confete(['📖','✨','💜','🕊️'])}toast('Leitura concluída 🙏 '+nomePet()+' ficou feliz');break}
  case 'ler-mover':{const [b,c]=leitura.refs[0];const caps=BIB.idx[b-1][2].length;let nb=b,nc=c+(+v);if(nc<1){nb=b-1;if(nb<1)return;nc=BIB.idx[nb-1][2].length}else if(nc>caps){nb=b+1;if(nb>66)return;nc=1}leitura={refs:[[nb,nc]],chave:null};B().ult={b:nb,c:nc};salvar();render();scrollTo({top:0});return}
+ case 'prox-ok':{const t=a.dataset.tipo;if(t==='bloco'){const f=S.blocosFeitos[h]=S.blocosFeitos[h]||{};f[id]=true}else if(t==='agenda'){const x=S.agenda.find(y=>y.id===id);if(x)x.ok=true}else{const x=S.tarefas.find(y=>y.id===id);if(x)x.feito=h}toast('Concluído ✓ '+nomePet()+' ficou feliz');break}
+ case 'hist':histTipo=v;break;
+ case 'hist-ir':{histTipo=v;const dd=a.closest('dialog');if(dd)dd.close();ir('historico');return}
+ case 'dia-det':diaDetalhe(v);return;
+ case 'fin-ir':finMes=v;finFiltro=null;ir('financas');return;
+ case 'fin-filtro':finFiltro=v||null;break;
  case 'fin-mes':{const [y,m]=finMes.split('-').map(Number);const d=new Date(y,m-1+(+v),1);finMes=d.getFullYear()+'-'+pad(d.getMonth()+1);break}
  case 'fin-x':S.fin=S.fin.filter(x=>x.id!==id);break;
  case 'meta-x':S.metas=S.metas.filter(x=>x.id!==id);break;
