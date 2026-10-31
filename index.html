@@ -490,6 +490,20 @@ dialog.dlg-pet{width:min(94vw,460px);max-height:92vh;overflow:auto}
  .nav button:active{transform:scale(.9)}
 }
 @media (prefers-reduced-motion:reduce){.vi *,.vi,.principal.viva .orbe:before,.rs-anel .rs-prog{animation:none!important}.rs-anel .rs-prog{stroke-dashoffset:var(--off)}}
+
+/* sem emojis: icones finos em alertas, lembretes, barras, historico e humor */
+.al-ic .vi,.lemb-ic .vi{width:22px;height:22px}
+.al-ic{color:var(--acc)}
+.lemb-ic{display:grid;place-items:center;width:34px;height:34px;border-radius:12px;color:var(--acc);background:color-mix(in srgb,var(--acc) 14%,transparent)}
+.lemb-ic .vi{width:20px;height:20px}
+.barra .vi{width:16px;height:16px;vertical-align:-3px;margin-right:6px;color:var(--acc)}
+.tag-ic{display:inline-grid;width:16px;height:16px;vertical-align:-3px;margin-right:6px}
+.tag-ic .vi{width:16px;height:16px}
+.humor-p{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:7px;background:var(--c);box-shadow:0 0 0 3px color-mix(in srgb,var(--c) 22%,transparent)}
+.plano-h .ii{font-size:0}
+.plano-h .ii .vii{display:grid;width:40px;height:40px;padding:8px;border-radius:14px;color:var(--c);background:color-mix(in srgb,var(--c) 14%,transparent)}
+.vi-sino .onda{animation:viBrilha 1.8s ease-in-out infinite}
+.vi-pomba .asa{transform-origin:100% 100%;animation:viFolhaE 1.4s ease-in-out infinite alternate}
 </style>
 </head>
 <body>
@@ -543,13 +557,13 @@ const PADRAO={nome:'Juliana',
  agenda:[],
  ciclo:{inicios:[],duracao:28,menst:5,diario:{}},
  treino:{plano:{
-  1:{n:'Pernas & Glúteos · Poder 🍑',ex:[{n:'Aquecimento: polichinelo + rotação de quadril',s:'3 min'},{n:'Agachamento livre (desce devagar)',s:'4x15'},{n:'Afundo alternado',s:'3x12 cada'},{n:'Elevação pélvica (segura 2s em cima)',s:'4x15'},{n:'Coice de glúteo em 4 apoios',s:'3x15 cada'},{n:'Abdução deitada de lado',s:'3x15 cada'},{n:'Agachamento sumô pulsando',s:'3x20'},{n:'Alongamento de pernas',s:'5 min'}]},
-  2:{n:'Superior & Core · Postura de rainha 👑',ex:[{n:'Aquecimento: rotação de braços + polichinelo',s:'3 min'},{n:'Flexão com joelhos apoiados',s:'4x10'},{n:'Tríceps na cadeira',s:'3x12'},{n:'Superman (costas no chão)',s:'3x12'},{n:'Prancha com toque no ombro',s:'3x10 cada'},{n:'Prancha',s:'3x30s'},{n:'Abdominal remador',s:'3x15'},{n:'Alongamento',s:'5 min'}]},
-  3:{n:'Descanso · Igreja 🙏',ex:[]},
-  4:{n:'HIIT · Queima total 🔥',ex:[{n:'Aquecimento: marcha no lugar',s:'3 min'},{n:'Circuito 4 voltas (40s faz / 20s descansa): polichinelo',s:'40s'},{n:'Agachamento com salto (ou sem salto)',s:'40s'},{n:'Escalador (mountain climber)',s:'40s'},{n:'Burpee sem flexão',s:'40s'},{n:'Corrida parada joelho alto',s:'40s'},{n:'Abdominal bicicleta',s:'40s'},{n:'Descanso entre voltas',s:'1 min'},{n:'Alongamento',s:'5 min'}]},
-  5:{n:'Glúteos & Abdômen · Esculpir ✨',ex:[{n:'Aquecimento: ponte + agachamento leve',s:'3 min'},{n:'Ponte com uma perna',s:'3x12 cada'},{n:'Abertura lateral em 4 apoios (fire hydrant)',s:'3x15 cada'},{n:'Agachamento búlgaro com pé na cadeira',s:'3x10 cada'},{n:'Stiff com uma perna (sem peso)',s:'3x12 cada'},{n:'Elevação de pernas deitada',s:'3x15'},{n:'Prancha lateral',s:'3x20s cada'},{n:'Alongamento',s:'5 min'}]},
-  6:{n:'Corpo todo + Alongamento · Leveza 🌸',ex:[{n:'Circuito 3 voltas: agachamento',s:'20'},{n:'Flexão com joelhos',s:'10'},{n:'Afundo para trás',s:'12 cada'},{n:'Prancha',s:'40s'},{n:'Polichinelo',s:'40'},{n:'Alongamento e respiração (yoga leve)',s:'10 min'}]},
-  0:{n:'Descanso · Igreja 🙏',ex:[]}},
+  1:{n:'Pernas & Glúteos · Poder',ex:[{n:'Aquecimento: polichinelo + rotação de quadril',s:'3 min'},{n:'Agachamento livre (desce devagar)',s:'4x15'},{n:'Afundo alternado',s:'3x12 cada'},{n:'Elevação pélvica (segura 2s em cima)',s:'4x15'},{n:'Coice de glúteo em 4 apoios',s:'3x15 cada'},{n:'Abdução deitada de lado',s:'3x15 cada'},{n:'Agachamento sumô pulsando',s:'3x20'},{n:'Alongamento de pernas',s:'5 min'}]},
+  2:{n:'Superior & Core · Postura de rainha',ex:[{n:'Aquecimento: rotação de braços + polichinelo',s:'3 min'},{n:'Flexão com joelhos apoiados',s:'4x10'},{n:'Tríceps na cadeira',s:'3x12'},{n:'Superman (costas no chão)',s:'3x12'},{n:'Prancha com toque no ombro',s:'3x10 cada'},{n:'Prancha',s:'3x30s'},{n:'Abdominal remador',s:'3x15'},{n:'Alongamento',s:'5 min'}]},
+  3:{n:'Descanso · Igreja',ex:[]},
+  4:{n:'HIIT · Queima total',ex:[{n:'Aquecimento: marcha no lugar',s:'3 min'},{n:'Circuito 4 voltas (40s faz / 20s descansa): polichinelo',s:'40s'},{n:'Agachamento com salto (ou sem salto)',s:'40s'},{n:'Escalador (mountain climber)',s:'40s'},{n:'Burpee sem flexão',s:'40s'},{n:'Corrida parada joelho alto',s:'40s'},{n:'Abdominal bicicleta',s:'40s'},{n:'Descanso entre voltas',s:'1 min'},{n:'Alongamento',s:'5 min'}]},
+  5:{n:'Glúteos & Abdômen · Esculpir',ex:[{n:'Aquecimento: ponte + agachamento leve',s:'3 min'},{n:'Ponte com uma perna',s:'3x12 cada'},{n:'Abertura lateral em 4 apoios (fire hydrant)',s:'3x15 cada'},{n:'Agachamento búlgaro com pé na cadeira',s:'3x10 cada'},{n:'Stiff com uma perna (sem peso)',s:'3x12 cada'},{n:'Elevação de pernas deitada',s:'3x15'},{n:'Prancha lateral',s:'3x20s cada'},{n:'Alongamento',s:'5 min'}]},
+  6:{n:'Corpo todo + Alongamento · Leveza',ex:[{n:'Circuito 3 voltas: agachamento',s:'20'},{n:'Flexão com joelhos',s:'10'},{n:'Afundo para trás',s:'12 cada'},{n:'Prancha',s:'40s'},{n:'Polichinelo',s:'40'},{n:'Alongamento e respiração (yoga leve)',s:'10 min'}]},
+  0:{n:'Descanso · Igreja',ex:[]}},
   checks:{},feitos:[],provisorio:false},
  fin:[],metas:[{id:'m1',t:'Guardar dinheiro',alvo:1000,atual:0,un:'R$'},{id:'m2',t:'Treinos no mês',alvo:16,atual:0,un:'treinos'}],
  ultimaCopia:0,fe:{},pet:null,album:[],
@@ -736,14 +750,14 @@ window.NUVEM=NUVEM;
 
 /* ---------- lembretes na tela ---------- */
 const LEMB_VISTOS=new Set();
-function eventosHoje(){const h=hoje();const ev=blocosDe(h).filter(b=>!(S.blocosFeitos[h]||{})[b.id]).map(b=>({id:'b-'+b.id+'-'+h,t:b.t,hora:b.ini,ir:'rotina',ic:'⏰'}));
- S.agenda.filter(a=>a.d===h&&a.h&&!a.ok).forEach(a=>ev.push({id:'a-'+a.id,t:a.t,hora:a.h,ir:'rotina',ic:'📅'}));
- blocosDe(h).filter(b=>/igreja/i.test(b.t)).forEach(b=>{const m=minDe(b.ini)-30;ev.push({id:'pre-'+b.id+'-'+h,t:b.t+' em 30 minutos',hora:pad(Math.floor(m/60))+':'+pad(m%60),ir:'rotina',ic:'🙏'})});
- const tr=treinoHoje();if(tr.ex.length&&!S.treino.feitos.includes(h)){const tb=blocosDe(h).find(b=>/treino/i.test(b.t));if(tb)ev.push({id:'tr-'+h,t:'Hora do treino: '+tr.n,hora:tb.ini,ir:'treino',ic:'💪'})}
+function eventosHoje(){const h=hoje();const ev=blocosDe(h).filter(b=>!(S.blocosFeitos[h]||{})[b.id]).map(b=>({id:'b-'+b.id+'-'+h,t:b.t,hora:b.ini,ir:'rotina',ic:'relogio'}));
+ S.agenda.filter(a=>a.d===h&&a.h&&!a.ok).forEach(a=>ev.push({id:'a-'+a.id,t:a.t,hora:a.h,ir:'rotina',ic:'agenda'}));
+ blocosDe(h).filter(b=>/igreja/i.test(b.t)).forEach(b=>{const m=minDe(b.ini)-30;ev.push({id:'pre-'+b.id+'-'+h,t:b.t+' em 30 minutos',hora:pad(Math.floor(m/60))+':'+pad(m%60),ir:'rotina',ic:'pomba'})});
+ const tr=treinoHoje();if(tr.ex.length&&!S.treino.feitos.includes(h)){const tb=blocosDe(h).find(b=>/treino/i.test(b.t));if(tb)ev.push({id:'tr-'+h,t:'Hora do treino: '+tr.n,hora:tb.ini,ir:'treino',ic:'treino'})}
  return ev}
-function avisar(e){const el=document.createElement('button');el.className='lembrete-tela vidro';el.dataset.ir=e.ir;el.innerHTML=`<span>${e.ic}</span><div><small>${e.hora} · lembrete</small><b>${esc(e.t)}</b></div><i>${ic('x')}</i>`;document.body.append(el);requestAnimationFrame(()=>el.classList.add('on'));
+function avisar(e){const el=document.createElement('button');el.className='lembrete-tela vidro';el.dataset.ir=e.ir;el.innerHTML=`<span class="lemb-ic">${VI[e.ic]||''}</span><div><small>${e.hora} · lembrete</small><b>${esc(e.t)}</b></div><i>${ic('x')}</i>`;document.body.append(el);requestAnimationFrame(()=>el.classList.add('on'));
  const tira=()=>{el.classList.remove('on');setTimeout(()=>el.remove(),400)};el.addEventListener('click',tira);setTimeout(tira,12000);
- try{if('Notification' in window&&Notification.permission==='granted'&&navigator.serviceWorker&&navigator.serviceWorker.ready)navigator.serviceWorker.ready.then(r=>r.showNotification('Life Trail',{body:e.ic+' '+e.t,tag:e.id,icon:'icon-192-v2.png'})).catch(()=>{})}catch(x){}}
+ try{if('Notification' in window&&Notification.permission==='granted'&&navigator.serviceWorker&&navigator.serviceWorker.ready)navigator.serviceWorker.ready.then(r=>r.showNotification('Life Trail',{body:e.t,tag:e.id,icon:'icon-192-v2.png'})).catch(()=>{})}catch(x){}}
 function checarLembretes(){if(!S)return;const dt=new Date();const agora=dt.getHours()*60+dt.getMinutes();
  eventosHoje().forEach(e=>{const m=minDe(e.hora);if(agora>=m&&agora<m+20&&!LEMB_VISTOS.has(e.id)&&!(S.lembVistos||{})[e.id]){LEMB_VISTOS.add(e.id);S.lembVistos=S.lembVistos||{};S.lembVistos[e.id]=1;try{localStorage.setItem(CHAVE,JSON.stringify(S))}catch(x){}avisar(e)}})}
 setInterval(checarLembretes,30000);document.addEventListener('visibilitychange',()=>{if(!document.hidden){checarLembretes();if(window.NUVEM&&NUVEM.ativo())NUVEM.puxar()}});
@@ -754,7 +768,7 @@ function petSheet(){const h=hoje();const p=S.pet,E=ESP[p.esp],x=xp(),f=faseDe(x)
  const barra=(n,val,cor,k)=>`<button class="barra" data-acao="hist-ir" data-v="${k}" style="border:0;background:none;width:100%;color:inherit;font:inherit;padding:0">${n}<div class="liq"><i style="width:${Math.round(val*100)}%;--c:${cor}"></i></div><b>${Math.round(val*100)}% ›</b></button>`;
  return `${terrario()}<div class="pet-info"><div><small>${f===0?'Ovo · quem será? 🥚':(E.raro?'✨ Lendário · ':'')+E.n+' · '+FASES[f][0]}</small><br><b>${esc(nomePet())}</b></div><span class="nivel">nv.${f+1} · ${f===0?'nascendo · '+Math.round(x/FASES[1][1]*100)+'%':pp+'%'}</span></div>
  <div class="liq xp"><i style="width:${f===0?Math.round(x/FASES[1][1]*100):pp}%;--c:var(--acc2)"></i></div><p class="dica" style="margin-top:6px;text-align:center">Dia ${difDias(p.nasc,h)+1} de vida · cresce quando você cuida da sua rotina</p>
- <div class="vidro barras">${barra('💧 Água',cd.agua,'#4aa8ff','agua')}${barra('💪 Treino',cd.treino,'#ff8a5c','treino')}${barra('📖 Fé',cd.fe,'#c49bff','fe')}${barra('🌳 Rotina',cd.rotina,'#3ccf9a','rotina')}</div>
+ <div class="vidro barras">${barra(VI.agua+'<span>Água</span>',cd.agua,'#4aa8ff','agua')}${barra(VI.treino+'<span>Treino</span>',cd.treino,'#ff8a5c','treino')}${barra(VI.livro+'<span>Fé</span>',cd.fe,'#c49bff','fe')}${barra(VI.rotina+'<span>Rotina</span>',cd.rotina,'#3ccf9a','rotina')}</div>
  <div class="principais">${principais(cd)}</div><div class="dlg-acoes"><button class="btn" data-fechar>Fechar</button></div>`}
 
 // Icones delicados e vivos (31/10/2026): traço fino, cada um com seu movimento
@@ -770,6 +784,9 @@ const VI={
  alvo:'<svg viewBox="0 0 32 32" class="vi vi-alvo"><circle class="anel a1" cx="16" cy="16" r="11"/><circle class="anel a2" cx="16" cy="16" r="7"/><circle cx="16" cy="16" r="2.6" fill="currentColor"/><path class="seta" d="M16 16l9-9M21.5 6.5l3.5.2.2 3.4"/></svg>',
  grafico:'<svg viewBox="0 0 32 32" class="vi vi-grafico"><path d="M5 26h22"/><rect class="barra b1" x="7" y="16" width="4" height="10" rx="1.6"/><rect class="barra b2" x="14" y="11" width="4" height="15" rx="1.6"/><rect class="barra b3" x="21" y="7" width="4" height="19" rx="1.6"/></svg>',
  agenda:'<svg viewBox="0 0 32 32" class="vi vi-agenda"><rect x="5.5" y="7.5" width="21" height="19" rx="4"/><path d="M5.5 13h21M11 5v5M21 5v5"/><circle class="ponto" cx="20.5" cy="19.5" r="2" fill="currentColor"/></svg>',
+ sino:'<svg viewBox="0 0 32 32" class="vi vi-sino"><path d="M10 21V14a6 6 0 0 1 12 0v7l2 2.5H8Z"/><path d="M14 26.5a2.2 2.2 0 0 0 4 0"/><path class="onda" d="M24.5 9.5a7 7 0 0 1 1.8 4M7.5 9.5a7 7 0 0 0-1.8 4"/></svg>',
+ pomba:'<svg viewBox="0 0 32 32" class="vi vi-pomba"><path d="M5 18c3.5 0 6-1.5 8-4 1.6-2 3.8-3 6.5-3 1.2-2.2 3-3 5-3l2.5 1-2.5 1c0 4.6-3 9-9 10.5L11 24l1.5-4.5C10 20 7.5 19.6 5 18Z"/><path class="asa" d="M16 13.5C14.5 9 11.5 6 7 5.5c.6 4 3 7 7 8.5"/></svg>',
+ humor:'<svg viewBox="0 0 32 32" class="vi"><circle cx="16" cy="16" r="10.5"/><circle cx="12.5" cy="14" r="1" fill="currentColor"/><circle cx="19.5" cy="14" r="1" fill="currentColor"/><path d="M12 19.2c2.2 2 5.8 2 8 0"/></svg>',
  brilho:'<svg viewBox="0 0 32 32" class="vi vi-brilho"><path d="M16 4c.9 5.4 3.3 7.8 8.7 8.7-5.4.9-7.8 3.3-8.7 8.7-.9-5.4-3.3-7.8-8.7-8.7C12.7 11.8 15.1 9.4 16 4Z"/><path class="mini" d="M24.5 21.5c.4 2 1.2 2.8 3.2 3.2-2 .4-2.8 1.2-3.2 3.2-.4-2-1.2-2.8-3.2-3.2 2-.4 2.8-1.2 3.2-3.2Z"/></svg>'};
 const vi=(n,c)=>'<span class="ii vii" style="--c:'+c+'">'+VI[n]+'</span>';
 function principais(cd){const B_=(ok,c1,c2,dl,attr,ic,t)=>`<button class="principal viva ${ok?'ok':''}" style="--c1:${c1};--c2:${c2};--dl:${dl}" ${attr}><span class="orbe">${VI[ic]}</span><b>${t}</b></button>`;
@@ -799,7 +816,7 @@ function arvoreSVG(itens,mini){const n=itens.length,feitos=itens.filter(i=>i.ok)
  return `<svg viewBox="0 0 360 345" role="img" aria-label="Árvore da rotina: ${feitos} de ${n}">${chao}${tronco}${copa}${fr}${fa}</svg>`}
 function arvore(){const h=hoje();const it=itensArvore(h);const f=it.filter(i=>i.ok).length;const cheia=it.length&&f===it.length;
  const dias=Array.from({length:7},(_,i)=>somaDias(h,i-6));
- return `<div class="vidro arvore ${cheia?'cheia':''}"><div class="arv-top"><b>Árvore de hoje</b><button class="btn peq" data-acao="hist-ir" data-v="rotina">${f}/${it.length} 🌸 · histórico</button></div>
+ return `<div class="vidro arvore ${cheia?'cheia':''}"><div class="arv-top"><b>Árvore de hoje</b><button class="btn peq" data-acao="hist-ir" data-v="rotina">${f}/${it.length} flores · histórico</button></div>
  <p class="dica" style="margin:4px 0 0">${cheia?'Árvore florida! Você concluiu tudo hoje 💜':'Toque num botão da árvore para florescer cada bloco e hábito do dia.'}</p>${arvoreSVG(it)}
  <div class="floresta">${dias.map(d=>{const x=itensArvore(d);const k=x.length?Math.round(x.filter(i=>i.ok).length/x.length*100):0;return `<button title="${k}%" data-acao="dia-det" data-v="${d}" style="border:0;background:none;display:grid;justify-items:center;gap:2px;font:800 10px var(--sans);color:var(--sub);padding:0">${arvoreSVG(x,true)}${parse(d).toLocaleDateString('pt-BR',{weekday:'short'}).slice(0,3)}<span style="color:var(--acc)">${k}%</span></button>`}).join('')}</div></div>`}
 /* bíblia */
@@ -819,11 +836,11 @@ function biblia(){if(!BIB.idx){bibCarregar('idx');return `<h2 class="tit">Bíbli
  const b=B(),h=hoje();const ps=Object.keys(b.salmos).length;let sal=1;while(b.salmos[sal]&&sal<150)sal++;const dm=Math.min(31,+h.slice(8));const pmes=Object.keys(b.prov).filter(d=>d.slice(0,7)===h.slice(0,7)).length;
  const A=planoAnual();const an=b.anual;let diaA=0,feitosA=0,atras=0;if(an.inicio){const hojeIdx=Math.min(364,difDias(an.inicio,h));feitosA=Object.keys(an.dias).length;diaA=0;while(an.dias[diaA]&&diaA<364)diaA++;atras=Math.max(0,hojeIdx-diaA)}
  const card=(ic2,t,sub,hojeTxt,pct,acoes)=>`<div class="vidro plano tilt"><div class="plano-h"><span class="ii">${ic2}</span><div><b>${t}</b><small>${sub}</small></div></div><div class="hoje">${hojeTxt}</div><div class="trilho" style="margin:0"><i style="width:${pct}%"></i></div><div class="acoes2">${acoes}</div></div>`;
- return `<h2 class="tit">Bíblia</h2><button class="btn peq" style="margin:4px 0 6px" data-acao="hist-ir" data-v="fe">📖 Histórico de leitura</button><p class="sub">Leitura diária · ${b.salmos&&ps+pmes+feitosA?'você está indo muito bem 💜':'escolha um plano para começar'}</p>
+ return `<h2 class="tit">Bíblia</h2><button class="btn peq" style="margin:4px 0 6px" data-acao="hist-ir" data-v="fe"><span class="tag-ic">${VI.livro}</span>Histórico de leitura</button><p class="sub">Leitura diária · ${b.salmos&&ps+pmes+feitosA?'você está indo muito bem 💜':'escolha um plano para começar'}</p>
  <div class="lista sec planos" style="gap:12px">
- ${card('🕊️','Salmos','Um salmo por dia · '+ps+' de 150',ps>=150?'Você leu todos os Salmos! 🎉':'Hoje: Salmo '+sal+(b.salmos[sal]?' ✓':''),Math.round(ps/150*100),`<button class="btn p" data-acao="ler-plano" data-v="salmos">${ic('livro')} Ler Salmo ${sal}</button>`)}
- ${card('🦉','Provérbios','Um capítulo por dia do mês · '+pmes+' lido(s) este mês','Hoje: Provérbios '+dm+(b.prov[h]?' ✓':''),Math.round(pmes/31*100),`<button class="btn p" data-acao="ler-plano" data-v="prov">${ic('livro')} Ler Provérbios ${dm}</button>`)}
- ${an.inicio?card('📜','Bíblia em 1 ano','Dia '+(diaA+1)+' de 365 · '+feitosA+' dia(s) concluído(s)'+(atras?' · '+atras+' atrasado(s)':''),'Hoje: '+refTxt(A[diaA]),Math.round(feitosA/365*100),`<button class="btn p" data-acao="ler-plano" data-v="anual">${ic('livro')} Ler o dia ${diaA+1}</button><button class="btn" data-acao="anual-reiniciar">Recomeçar</button>`)
+ ${card('<span class="vii" style="--c:#7c8cf0">'+VI.pomba+'</span>','Salmos','Um salmo por dia · '+ps+' de 150',ps>=150?'Você leu todos os Salmos! 🎉':'Hoje: Salmo '+sal+(b.salmos[sal]?' ✓':''),Math.round(ps/150*100),`<button class="btn p" data-acao="ler-plano" data-v="salmos">${ic('livro')} Ler Salmo ${sal}</button>`)}
+ ${card('<span class="vii" style="--c:#c08a3e">'+VI.livro+'</span>','Provérbios','Um capítulo por dia do mês · '+pmes+' lido(s) este mês','Hoje: Provérbios '+dm+(b.prov[h]?' ✓':''),Math.round(pmes/31*100),`<button class="btn p" data-acao="ler-plano" data-v="prov">${ic('livro')} Ler Provérbios ${dm}</button>`)}
+ ${an.inicio?card('<span class="vii" style="--c:#9b6bf2">'+VI.agenda+'</span>','Bíblia em 1 ano','Dia '+(diaA+1)+' de 365 · '+feitosA+' dia(s) concluído(s)'+(atras?' · '+atras+' atrasado(s)':''),'Hoje: '+refTxt(A[diaA]),Math.round(feitosA/365*100),`<button class="btn p" data-acao="ler-plano" data-v="anual">${ic('livro')} Ler o dia ${diaA+1}</button><button class="btn" data-acao="anual-reiniciar">Recomeçar</button>`)
   :card('📜','Bíblia em 1 ano','A Bíblia toda em 365 dias, cerca de 15 minutos por dia','Comece hoje: '+refTxt(A[0]),0,`<button class="btn p" data-acao="anual-comecar">Começar o plano hoje</button>`)}
  </div>
  <div class="sec"><h3>Abrir a Bíblia ${b.ult?`<button class="btn peq" data-acao="ler-ref" data-b="${b.ult.b}" data-c="${b.ult.c}">Continuar ${esc(nomeLivro(b.ult.b))} ${b.ult.c}</button>`:''}</h3>
@@ -849,9 +866,9 @@ document.addEventListener('pointerout',e=>{const g=e.target.closest&&e.target.cl
 
 /* ---------- histórico ---------- */
 let histTipo='agua',finFiltro=null;
-const HT={agua:['💧','Água'],treino:['💪','Treino'],fe:['📖','Fé e leitura'],rotina:['🌳','Rotina'],fin:['💰','Finanças']};
+const HT={agua:['agua','Água'],treino:['treino','Treino'],fe:['livro','Fé e leitura'],rotina:['rotina','Rotina'],fin:['moeda','Finanças']};
 function historico(){const h=hoje();const dias=Array.from({length:30},(_,i)=>somaDias(h,-i));let corpo='',resumo='';
- const chips=`<div class="tags" style="margin-top:12px">${Object.entries(HT).map(([k,[e,n]])=>`<button class="tag ${histTipo===k?'on':''}" data-acao="hist" data-v="${k}">${e} ${n}</button>`).join('')}</div>`;
+ const chips=`<div class="tags" style="margin-top:12px">${Object.entries(HT).map(([k,[e,n]])=>`<button class="tag ${histTipo===k?'on':''}" data-acao="hist" data-v="${k}"><span class="tag-ic">${VI[e]}</span>${n}</button>`).join('')}</div>`;
  const linhaDia=(d,val,txt,pct)=>`<button class="linha" data-acao="dia-det" data-v="${d}" style="text-align:left;color:inherit;font:inherit;width:100%"><span>${d===h?'Hoje':fmtData(d,{weekday:'short',day:'2-digit',month:'short'})}<small>${txt}</small></span><div class="trilho" style="margin:0;width:38%"><i style="width:${pct}%"></i></div><b style="min-width:44px;text-align:right">${val}</b></button>`;
  if(histTipo==='agua'){const v=dias.map(d=>S.agua[d]||0);const med=(v.reduce((a,b)=>a+b,0)/30).toFixed(1).replace('.',',');const bat=v.filter(x=>x>=S.meta_agua).length;
   resumo=`Média de ${med} copos por dia · meta batida em ${bat} de 30 dias`;corpo=dias.map((d,i)=>linhaDia(d,v[i]+'/'+S.meta_agua,(v[i]*250)+' ml',Math.min(100,v[i]/S.meta_agua*100))).join('')}
@@ -865,10 +882,10 @@ function historico(){const h=hoje();const dias=Array.from({length:30},(_,i)=>som
  else{const meses=[...new Set(S.fin.map(f=>f.d.slice(0,7)))].sort().reverse();resumo=meses.length?`${meses.length} mês(es) com lançamentos`:'Nenhum lançamento ainda';
   corpo=meses.map(m=>{const L=S.fin.filter(f=>f.d.slice(0,7)===m);const e=L.filter(f=>f.tipo==='e').reduce((a,f)=>a+f.v,0),sa=L.filter(f=>f.tipo==='s').reduce((a,f)=>a+f.v,0);const [y,mm]=m.split('-').map(Number);
    return `<button class="linha" data-acao="fin-ir" data-v="${m}" style="text-align:left;color:inherit;font:inherit;width:100%"><span>${new Date(y,mm-1,1).toLocaleDateString('pt-BR',{month:'long',year:'numeric'})}<small>entrou ${brl(e)} · saiu ${brl(sa)}</small></span><b class="${e-sa>=0?'pos':'neg'}">${brl(e-sa)}</b>${ic('seta')}</button>`}).join('')||'<p class="vazio">Sem histórico.</p>'}
- return `<h2 class="tit">Histórico</h2><p class="sub">Toque num dia para ver os detalhes</p>${chips}<div class="vidro cartao sec"><b>${HT[histTipo][0]} ${HT[histTipo][1]}</b><p class="sub" style="font-size:14px;margin-top:4px">${resumo}</p></div><div class="lista sec">${corpo}</div>`}
+ return `<h2 class="tit">Histórico</h2><p class="sub">Toque num dia para ver os detalhes</p>${chips}<div class="vidro cartao sec"><b><span class="tag-ic">${VI[HT[histTipo][0]]}</span> ${HT[histTipo][1]}</b><p class="sub" style="font-size:14px;margin-top:4px">${resumo}</p></div><div class="lista sec">${corpo}</div>`}
 function diaDetalhe(d){const x=itensArvore(d);const tr=S.treino.feitos.includes(d);const ag=S.agua[d]||0;const fins=S.fin.filter(f=>f.d===d);
  dlg(`<h3>${fmtData(d,{weekday:'long',day:'numeric',month:'long'})}</h3><div class="lista">${x.map(i=>`<div class="linha ${i.ok?'':'feito'}"><span>${i.ok?'🌸':'○'} ${esc(i.t)}</span></div>`).join('')}
- <div class="linha"><span>💧 Água: ${ag} copo(s)</span></div><div class="linha"><span>💪 Treino: ${tr?'concluído ✓':'não feito'}</span></div><div class="linha"><span>📖 Fé: ${S.fe[d]?'leitura feita ✓':'—'}</span></div>
+ <div class="linha"><span><span class="tag-ic">${VI.agua}</span>Água: ${ag} copo(s)</span></div><div class="linha"><span><span class="tag-ic">${VI.treino}</span>Treino: ${tr?'concluído ✓':'não feito'}</span></div><div class="linha"><span><span class="tag-ic">${VI.livro}</span>Fé: ${S.fe[d]?'leitura feita ✓':'—'}</span></div>
  ${fins.map(f=>`<div class="linha"><span>${f.tipo==='e'?'⬆️':'⬇️'} ${esc(f.desc)}</span><b class="${f.tipo==='e'?'pos':'neg'}">${brl(f.v)}</b></div>`).join('')}</div><div class="dlg-acoes"><button class="btn" data-fechar>Fechar</button></div>`,()=>{})}
 
 
@@ -882,10 +899,10 @@ function proximaTarefa(){const h=hoje();const dt=new Date();const ag=dt.getHours
  else{const t=S.tarefas.find(t=>!t.feito);if(t)it={tipo:'tarefa',id:t.id,t:t.t}}
  return {it,atras,ag}}
 function alertaProxima(){const {it,atras,ag}=proximaTarefa();
- if(!it&&!atras.length)return `<div class="alerta ok"><span class="al-ic">✨</span><div><small>Próxima tarefa</small><b>Tudo concluído por hoje!</b><span>Aproveite seu descanso 💜</span></div></div>`;
+ if(!it&&!atras.length)return `<div class="alerta ok"><span class="al-ic">${VI.brilho}</span><div><small>Próxima tarefa</small><b>Tudo concluído por hoje!</b><span>Aproveite seu descanso 💜</span></div></div>`;
  let quando='';if(it&&it.m!=null){const d=it.m-ag;quando=d<=0?(it.fim?'agora · até '+it.fim:'agora'):d<60?'em '+d+' min · '+it.ini:'às '+it.ini}else if(it)quando='tarefa sem horário';
  const agora=it&&it.m!=null&&it.m-ag<=0;
- return `<div class="alerta ${agora?'agora':''}" role="status"><span class="al-ic">${agora?'⏰':'🔔'}</span><div><small>${agora?'Acontecendo agora':'Próxima tarefa'}</small><b>${it?esc(it.t):'Blocos atrasados'}</b><span>${quando}${atras.length?` · <em>${atras.length} atrasado(s)</em>`:''}</span></div>
+ return `<div class="alerta ${agora?'agora':''}" role="status"><span class="al-ic">${agora?VI.relogio:VI.sino}</span><div><small>${agora?'Acontecendo agora':'Próxima tarefa'}</small><b>${it?esc(it.t):'Blocos atrasados'}</b><span>${quando}${atras.length?` · <em>${atras.length} atrasado(s)</em>`:''}</span></div>
  <div class="al-acoes">${it?`<button class="btn p peq" data-acao="prox-ok" data-tipo="${it.tipo}" data-id="${it.id}">Concluir ✓</button>`:''}<button class="btn peq" data-ir="rotina">Rotina ›</button></div></div>`}
 setInterval(()=>{if(tela==='inicio'&&!document.hidden){const a=document.querySelector('.alerta');if(a)a.outerHTML=alertaProxima()}},30000);
 
@@ -895,7 +912,8 @@ const NAV=[['inicio','Início','casa'],['rotina','Rotina','rotina'],['biblia','B
 const HIST={b:[],f:[]};let porHist=false;
 let tela='inicio';
 function ir(t,topo=true){if(!TELAS[t])t='inicio';if(!porHist&&t!==tela){HIST.b.push(tela);HIST.f=[]}porHist=false;tela=t;if(location.hash.slice(1)!==t)history.replaceState(null,'','#'+t);render();if(topo)scrollTo({top:0})}
-function render(){if(S.pet)cuidarPet();const amb=$('#ambiente');if(amb&&!amb.dataset.ok){amb.style.backgroundImage='url('+(function(){try{return localStorage.getItem(CHAVE_FOTO)?foto():AMBIENTE}catch(e){return AMBIENTE}})()+')';amb.dataset.ok=1}document.querySelectorAll('.pagina').forEach(p=>{const on=p.id==='p-'+tela;p.classList.toggle('on',on);if(!on)p.innerHTML=''});const el=$('#p-'+tela);el.innerHTML=TELAS[tela]();
+const semEmoji=t=>String(t||'').replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B50}\u{FE0F}]/gu,'').replace(/\s{2,}/g,' ').trim();
+function render(){try{if(S&&S.treino&&S.treino.plano&&!S._semEmoji){Object.values(S.treino.plano).forEach(x=>{if(x&&x.n)x.n=semEmoji(x.n)});S._semEmoji=1}}catch(e){}if(S.pet)cuidarPet();const amb=$('#ambiente');if(amb&&!amb.dataset.ok){amb.style.backgroundImage='url('+(function(){try{return localStorage.getItem(CHAVE_FOTO)?foto():AMBIENTE}catch(e){return AMBIENTE}})()+')';amb.dataset.ok=1}document.querySelectorAll('.pagina').forEach(p=>{const on=p.id==='p-'+tela;p.classList.toggle('on',on);if(!on)p.innerHTML=''});const el=$('#p-'+tela);el.innerHTML=TELAS[tela]();
  const navAtivo=NAV.some(n=>n[0]===tela)?tela:(tela==='ler'?'biblia':(['financas','metas','historico'].includes(tela)?'inicio':tela));const gn=$('#gnav');if(gn){gn.querySelector('[data-acao=nav-voltar]').disabled=!HIST.b.length;gn.querySelector('[data-acao=nav-avancar]').disabled=!HIST.f.length;gn.querySelector('[data-acao=nav-inicio]').classList.toggle('on',tela==='inicio')}petFlutuante();const dd=$('#dlg');if(dd.open&&dd.dataset.tipo==='pet'){const w=dd.querySelector('.pet-wrap');if(w)w.innerHTML=petSheet()}
  $('#nav').innerHTML=NAV.map(([id,l,i])=>'<button data-ir="'+id+'" class="'+(id===navAtivo?'on':'')+'" aria-label="'+l+'">'+ic(i)+'<span>'+l+'</span></button>').join('');
  $('#sino').classList.toggle('tem',lembretes().length>0);checarEvolucao();if(avisoPet){const av=avisoPet;avisoPet=null;setTimeout(()=>dlg(`<h3>${av.t}</h3><p class="sub" style="font-size:15px">${av.m}</p><div class="dlg-acoes"><button class="btn p" data-fechar>Vamos lá!</button></div>`,()=>{}),400)}
@@ -908,9 +926,9 @@ function inicio(){const r=rotinaHoje();const pct=r.total?Math.round(r.feitos/r.t
  const b=B();let sal=1;while(b.salmos[sal]&&sal<150)sal++;const dm=Math.min(31,+h.slice(8));
  const L=S.fin.filter(f=>f.d.slice(0,7)===h.slice(0,7));const saldo=L.reduce((a,f)=>a+(f.tipo==='e'?f.v:-f.v),0);const m0=S.metas[0];
  const agenda=S.agenda.filter(a=>!a.ok&&difDias(h,a.d)>=0).sort((a,b)=>(a.d+(a.h||'')).localeCompare(b.d+(b.h||'')))[0];const copiaAtrasada=Date.now()-(S.ultimaCopia||0)>7*864e5;
- return `<div class="home-grid"><div class="col-a"><div class="saud"><div class="avatar"><img src="${avatar()}" alt="Foto da ${esc(S.nome)}"></div><div><small>${parse(h).toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'})}</small><h1>${sauda}, ${esc(S.nome)} 💜</h1><p class="sub" style="font-size:14px">Seu dia, no seu ritmo.</p></div></div>
+ return `<div class="home-grid"><div class="col-a"><div class="saud"><div class="avatar"><img src="${avatar()}" alt="Foto da ${esc(S.nome)}"></div><div><small>${parse(h).toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'})}</small><h1>${sauda}, ${esc(S.nome)}</h1><p class="sub" style="font-size:14px">Seu dia, no seu ritmo.</p></div></div>
  ${alertaProxima()}
- <button class="vidro banner tilt" style="background-image:linear-gradient(135deg,color-mix(in srgb,var(--acc) 35%,transparent),transparent 60%),url(${foto()})" data-acao="ler"><span class="brilho"></span><span class="chip-d">📖 Versículo do dia</span><blockquote>“${esc(v)}”</blockquote><span class="ref">${esc(ref)} · toque para meditar</span></button>
+ <button class="vidro banner tilt" style="background-image:linear-gradient(135deg,color-mix(in srgb,var(--acc) 35%,transparent),transparent 60%),url(${foto()})" data-acao="ler"><span class="brilho"></span><span class="chip-d"><span class="tag-ic">${VI.livro}</span>Versículo do dia</span><blockquote>“${esc(v)}”</blockquote><span class="ref">${esc(ref)} · toque para meditar</span></button>
  <div class="principais">${principais(cd)}</div>
  ${(()=>{const R=2*Math.PI*30,pc=cd.total;const fr=pc>=100?'Dia completo. Que orgulho!':pc>=70?'Quase lá, continue assim.':pc>=35?'Você está indo muito bem.':pc>0?'Bom começo, um passo de cada vez.':'Seu dia está começando.';
  const ch=(ic,c,t,ok)=>`<span class="rs-chip ${ok?'ok':''}" style="--c:${c}">${VI[ic]}<i>${t}</i></span>`;
@@ -956,7 +974,7 @@ function telaCiclo(){const c=ciclo();const h=hoje();if(!calMes)calMes=h.slice(0,
   <button class="btn p cheio" style="margin-top:14px" data-acao="menst-hoje">${ic('flor')} Minha menstruação começou hoje</button></div>
  <div class="vidro cartao sec">${calendario()}<div class="legenda"><span><i style="background:var(--menst)"></i>Menstruação</span><span><i style="background:color-mix(in srgb,var(--menst) 30%,transparent)"></i>Prevista</span><span><i style="background:color-mix(in srgb,var(--fertil) 28%,transparent)"></i>Fértil</span><span><i style="background:var(--fertil)"></i>Ovulação</span></div></div>
  <div class="sec"><h3>Como estou hoje</h3><div class="vidro cartao"><div class="tags">${['Cólica','Dor de cabeça','Inchaço','Seios sensíveis','Cansaço','Acne','Desejo de doce','Fluxo intenso'].map(t=>`<button class="tag ${reg.s.includes(t)?'on':''}" data-acao="sintoma" data-v="${t}">${t}</button>`).join('')}</div>
-  <div class="tags" style="margin-top:12px">${[['😊','Bem'],['😌','Tranquila'],['😐','Normal'],['😢','Sensível'],['😠','Irritada']].map(([e,t])=>`<button class="tag ${reg.h===t?'on':''}" data-acao="humor" data-v="${t}">${e} ${t}</button>`).join('')}</div></div></div>
+  <div class="tags" style="margin-top:12px">${[['#3fbf8f','Bem'],['#6aa8ff','Tranquila'],['#b9a6d8','Normal'],['#e88fb2','Sensível'],['#ef7a6a','Irritada']].map(([c,t])=>`<button class="tag ${reg.h===t?'on':''}" data-acao="humor" data-v="${t}"><span class="humor-p" style="--c:${c}"></span>${t}</button>`).join('')}</div></div></div>
  <div class="sec"><h3>Histórico <button class="btn peq" data-acao="ciclo-editar">${ic('lapis')} Ajustar</button></h3><div class="lista">${S.ciclo.inicios.slice().sort().reverse().slice(0,6).map((d,i,a)=>`<div class="linha"><span>${fmtData(d,{day:'2-digit',month:'long',year:'numeric'})}<small>${a[i-1]?'ciclo de '+difDias(d,a[i-1])+' dias':'ciclo atual'}</small></span><button class="x" data-acao="inicio-x" data-v="${d}" aria-label="Apagar">${ic('x')}</button></div>`).join('')}</div>
   <p class="dica">Ciclo médio usado: ${c.dur} dias. As datas são estimativas e não servem como método para evitar ou planejar gravidez. Em caso de dúvida, fale com sua ginecologista.</p></div>`}
 function calendario(){const [y,m]=calMes.split('-').map(Number);const pri=new Date(y,m-1,1,12);const ini=somaDias(dstr(pri),-pri.getDay());const h=hoje();let cel='';
@@ -965,7 +983,7 @@ function calendario(){const [y,m]=calMes.split('-').map(Number);const pri=new Da
 
 function treino(){const h=hoje();const dw=new Date().getDay();const tr=treinoHoje();const ck=S.treino.checks[h]||{};const feito=S.treino.feitos.includes(h);
  const seg=somaDias(h,-((dw+6)%7));const mes=S.treino.feitos.filter(d=>d.slice(0,7)===h.slice(0,7)).length;
- return `${voltar}<h2 class="tit">Meu treino</h2><button class="btn peq" style="margin-top:4px" data-acao="hist-ir" data-v="treino">💪 ${mes} treino(s) este mês · ver histórico</button>
+ return `${voltar}<h2 class="tit">Meu treino</h2><button class="btn peq" style="margin-top:4px" data-acao="hist-ir" data-v="treino"><span class="tag-ic">${VI.treino}</span>${mes} treino(s) este mês · ver histórico</button>
  ${S.treino.provisorio?'<p class="dica" style="margin-top:8px">Treino de exemplo. Toque em “Editar treino” para colocar o seu.</p>':''}
  <div class="semana sec">${Array.from({length:7},(_,i)=>{const d=somaDias(seg,i);const p=S.treino.plano[parse(d).getDay()];return `<div class="dia ${d===h?'hoje':''} ${S.treino.feitos.includes(d)?'feito':''}">${['S','T','Q','Q','S','S','D'][i]}<b>${+d.slice(8)}</b>${p&&p.ex.length?'•':''}</div>`}).join('')}</div>
  <div class="vidro cartao sec"><p class="fase">${esc(tr.n)}</p>${tr.ex.length?`<div class="lista" style="margin-top:10px">${tr.ex.map((e,i)=>`<div class="linha ex ${ck[i]?'feito':''}"><button class="ck ${ck[i]?'on':''}" data-acao="ex" data-i="${i}" aria-label="Marcar exercício">${ic('check')}</button><span>${esc(e.n)}</span><small>${esc(e.s)}</small></div>`).join('')}</div>
@@ -995,7 +1013,7 @@ function perfil(){const T=[['ceu','Céu','linear-gradient(180deg,#8ec5f5,#e9f3fc
   <div class="grade2" style="margin-top:12px"><button class="btn p" data-acao="copia">${ic('nuvem')} Fazer cópia</button><button class="btn" data-acao="restaurar">Restaurar</button></div></div></div>
  ${PREVIA?`<div class="sec"><h3>Só na prévia: testar bichinho</h3><div class="vidro cartao grade2"><select id="demo-esp">${Object.keys(ESP).map(k=>`<option value="${k}" ${k===S.pet.esp?'selected':''}>${ESP[k].n}</option>`).join('')}</select><select id="demo-fase">${FASES.map((f,i)=>`<option value="${f[1]+5}" ${faseDe(xp())===i?'selected':''}>${f[0]}</option>`).join('')}</select></div></div>`:''}<div class="sec"><h3>Meus bichinhos</h3><div class="album"><div><span>${ESP[S.pet.esp].img?`<img src="${PET_ARNOLD}" alt="">`:(faseDe(xp())?ESP[S.pet.esp].e[Math.max(0,faseDe(xp())-1)]:'🥚')}</span><b>${esc(nomePet())}</b><small>agora</small></div>${S.album.slice().reverse().map(p=>`<div><span>${ESP[p.esp].img?`<img src="${PET_ARNOLD}" alt="">`:ESP[p.esp].e[5]}</span><b>${esc(p.nome)}</b><small>${esc(p.como)}</small></div>`).join('')}</div>${S.pet.esp==='arnold'||faseDe(xp())===0?'':`<label class="campo" style="margin-top:10px">Nome do bichinho<input id="nome-pet" value="${esc(S.pet.nome)}" maxlength="20"></label>`}</div>
  <div class="sec"><h3>Nuvem e lembretes</h3><div class="vidro cartao" style="display:grid;gap:10px"><p class="sub" style="font-size:14px">${window.SEM_NUVEM?'Na prévia não salva na nuvem. No app publicado, tudo fica salvo na nuvem com senha.':NUVEM.ativo()?'☁️ Seus dados ficam salvos na nuvem, criptografados com a sua senha.':'Sem conexão com a nuvem agora. Seus dados estão salvos no aparelho.'}</p>
- <button class="btn" data-acao="notif">🔔 Permitir notificações no celular</button><p class="dica" style="margin:0">Os lembretes aparecem na tela enquanto o app está aberto. No iPhone, as notificações só funcionam com o app instalado na tela de início.</p>
+ <button class="btn" data-acao="notif"><span class="tag-ic">${VI.sino}</span>Permitir notificações no celular</button><p class="dica" style="margin:0">Os lembretes aparecem na tela enquanto o app está aberto. No iPhone, as notificações só funcionam com o app instalado na tela de início.</p>
  ${!window.SEM_NUVEM&&NUVEM.ativo()?'<div class="grade2"><button class="btn" data-acao="nuvem-trocar">Trocar chave</button><button class="btn" data-acao="nuvem-sair">Sair deste aparelho</button></div>':''}</div></div>
  <div class="sec"><h3>Meta de água</h3><div class="vidro cartao grade2"><span class="sub" style="align-self:center">Copos por dia</span><input type="number" id="meta-agua" min="4" max="16" value="${S.meta_agua}" aria-label="Copos de água por dia"></div></div>
  <p class="dica" style="text-align:center;margin-top:24px">Life Trail da Juliana · feito pelo Studio Evolution Tech</p>`}
