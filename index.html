@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="Life Trail">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <title>Life Trail · Juliana</title>
-<link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icon-180.png"><link rel="icon" href="icon-192.png">
+<link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icon-180-v2.png"><link rel="icon" href="icon-192-v2.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Nunito+Sans:opsz,wght@6..12,400;6..12,600;6..12,700;6..12,800&display=swap">
 <script>try{var t=localStorage.getItem('lifetrail_juliana_tema');if(t)document.documentElement.dataset.tema=t}catch(e){}</script>
@@ -665,7 +665,7 @@ function eventosHoje(){const h=hoje();const ev=blocosDe(h).filter(b=>!(S.blocosF
  return ev}
 function avisar(e){const el=document.createElement('button');el.className='lembrete-tela vidro';el.dataset.ir=e.ir;el.innerHTML=`<span>${e.ic}</span><div><small>${e.hora} · lembrete</small><b>${esc(e.t)}</b></div><i>${ic('x')}</i>`;document.body.append(el);requestAnimationFrame(()=>el.classList.add('on'));
  const tira=()=>{el.classList.remove('on');setTimeout(()=>el.remove(),400)};el.addEventListener('click',tira);setTimeout(tira,12000);
- try{if('Notification' in window&&Notification.permission==='granted'&&navigator.serviceWorker&&navigator.serviceWorker.ready)navigator.serviceWorker.ready.then(r=>r.showNotification('Life Trail',{body:e.ic+' '+e.t,tag:e.id,icon:'icon-192.png'})).catch(()=>{})}catch(x){}}
+ try{if('Notification' in window&&Notification.permission==='granted'&&navigator.serviceWorker&&navigator.serviceWorker.ready)navigator.serviceWorker.ready.then(r=>r.showNotification('Life Trail',{body:e.ic+' '+e.t,tag:e.id,icon:'icon-192-v2.png'})).catch(()=>{})}catch(x){}}
 function checarLembretes(){if(!S)return;const dt=new Date();const agora=dt.getHours()*60+dt.getMinutes();
  eventosHoje().forEach(e=>{const m=minDe(e.hora);if(agora>=m&&agora<m+20&&!LEMB_VISTOS.has(e.id)&&!(S.lembVistos||{})[e.id]){LEMB_VISTOS.add(e.id);S.lembVistos=S.lembVistos||{};S.lembVistos[e.id]=1;try{localStorage.setItem(CHAVE,JSON.stringify(S))}catch(x){}avisar(e)}})}
 setInterval(checarLembretes,30000);document.addEventListener('visibilitychange',()=>{if(!document.hidden){checarLembretes();if(window.NUVEM&&NUVEM.ativo())NUVEM.puxar()}});
