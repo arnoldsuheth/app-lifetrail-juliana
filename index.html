@@ -97,7 +97,7 @@ input,select,textarea{width:100%;min-height:46px;padding:11px 13px;border-radius
 input:focus,select:focus,textarea:focus{border-color:var(--acc);box-shadow:0 0 0 3px var(--trilho)}
 textarea{min-height:110px;resize:vertical;line-height:1.5}
 label.campo{display:grid;gap:6px;font-size:13px;font-weight:700;color:var(--sub)}
-.grade2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grade2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}.grade2>*{min-width:0}input[type="time"],input[type="date"]{min-width:0;display:block;width:100%;min-height:48px;-webkit-appearance:none;appearance:none}input[type="time"]::-webkit-date-and-time-value{text-align:left;min-height:24px}.agenda-horarios{grid-template-columns:1fr!important}.linha>span{min-width:0;overflow-wrap:anywhere}.linha .ed2,.linha .x{flex-shrink:0}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:46px;padding:0 18px;border-radius:14px;border:1px solid var(--borda);background:var(--glass2);font-weight:800;font-size:14px;color:var(--txt);flex:none}
 .btn.p{border:0;background:linear-gradient(135deg,var(--acc),var(--acc2));color:var(--acc-txt);box-shadow:0 10px 22px -12px var(--acc)}
 .btn.peq{min-height:34px;padding:0 12px;font-size:12px;border-radius:11px}
@@ -748,19 +748,168 @@ const NUVEM=(()=>{const OWNER='arnoldsuheth',REPO='app-lifetrail-juliana',DATA_R
 window.NUVEM=NUVEM;
 
 
-/* ---------- lembretes na tela ---------- */
-const LEMB_VISTOS=new Set();
-function eventosHoje(){const h=hoje();const ev=blocosDe(h).filter(b=>!(S.blocosFeitos[h]||{})[b.id]).map(b=>({id:'b-'+b.id+'-'+h,t:b.t,hora:b.ini,ir:'rotina',ic:'relogio'}));
- S.agenda.filter(a=>a.d===h&&a.h&&!a.ok).forEach(a=>ev.push({id:'a-'+a.id,t:a.t,hora:a.h,ir:'rotina',ic:'agenda'}));
- blocosDe(h).filter(b=>/igreja/i.test(b.t)).forEach(b=>{const m=minDe(b.ini)-30;ev.push({id:'pre-'+b.id+'-'+h,t:b.t+' em 30 minutos',hora:pad(Math.floor(m/60))+':'+pad(m%60),ir:'rotina',ic:'pomba'})});
- const tr=treinoHoje();if(tr.ex.length&&!S.treino.feitos.includes(h)){const tb=blocosDe(h).find(b=>/treino/i.test(b.t));if(tb)ev.push({id:'tr-'+h,t:'Hora do treino: '+tr.n,hora:tb.ini,ir:'treino',ic:'treino'})}
- return ev}
-function avisar(e){const el=document.createElement('button');el.className='lembrete-tela vidro';el.dataset.ir=e.ir;el.innerHTML=`<span class="lemb-ic">${VI[e.ic]||''}</span><div><small>${e.hora} · lembrete</small><b>${esc(e.t)}</b></div><i>${ic('x')}</i>`;document.body.append(el);requestAnimationFrame(()=>el.classList.add('on'));
+/* ---------- lembretes no aparelho ---------- */
+const LEMB_CHAVE='lifetrail_juliana_avisos_v3';
+let LEMB_VISTOS={};try{LEMB_VISTOS=JSON.parse(localStorage.getItem(LEMB_CHAVE))||{}}catch(e){}
+const horaValida=h=>/^([01]\d|2[0-3]):[0-5]\d$/.test(h||'');
+function eventosDia(h){
+ const bf=S.blocosFeitos[h]||{},hd=S.habDias[h]||{},bl=blocosDe(h),ev=[];
+ const add=(id,t,hora,ir,icon,fim)=>{if(horaValida(hora))ev.push({id:id+'-'+h+'-'+hora,t,hora,ir,ic:icon,fim})};
+ bl.filter(b=>!bf[b.id]).forEach(b=>{add('b-'+b.id,b.t,b.ini,'rotina','relogio',b.fim);if(/igreja/i.test(b.t)&&minDe(b.ini)>=30){const m=minDe(b.ini)-30;add('pre-'+b.id,b.t+' em 30 minutos',pad(Math.floor(m/60))+':'+pad(m%60),'rotina','pomba',b.ini)}});
+ S.agenda.filter(a=>a.d===h&&!a.ok).forEach(a=>{add('a-'+a.id,a.t,a.h,'rotina','agenda');if(horaValida(a.h)){const m=minDe(a.h)-30;if(m>=0)add('apre-'+a.id,a.t+' em 30 minutos',pad(Math.floor(m/60))+':'+pad(m%60),'rotina','agenda',a.h)}});
+ S.tarefas.filter(t=>!t.feito).forEach(t=>add('t-'+t.id,t.t,t.h,'rotina','relogio'));
+ S.habitos.filter(t=>!hd[t.id]).forEach(t=>add('h-'+t.id,t.t,t.h,'rotina','relogio'));
+ const cfg=S.avisos||{},passo=Number(cfg.agua??120)||0;
+ if(passo>0&&(S.agua[h]||0)<S.meta_agua)for(let m=8*60;m<=20*60;m+=passo)add('agua-'+m,'Hora de beber água',pad(Math.floor(m/60))+':'+pad(m%60),'rotina','agua');
+ return ev.sort((a,b)=>a.hora.localeCompare(b.hora))
+}
+function eventosHoje(){return eventosDia(hoje())}
+function vencidos(ev,minutos){return ev.filter(e=>{const m=minDe(e.hora);return m<=minutos&&(!e.fim||minDe(e.fim)>minutos)})}
+async function registroAvisos(){
+ if(!('serviceWorker' in navigator)||location.protocol!=='https:')throw Error('sem serviço');
+ const r=await navigator.serviceWorker.register('sw.js');
+ if(r.active)return r;
+ return Promise.race([navigator.serviceWorker.ready,new Promise((_,no)=>setTimeout(()=>no(Error('tempo esgotado')),8000))])
+}
+async function notificar(e){
+ if(!('Notification' in window)||Notification.permission!=='granted')return false;
+ try{const r=await registroAvisos();await r.showNotification('Life Trail · Juliana',{body:e.hora+' · '+e.t,tag:e.id,icon:'icon-192-v2.png',data:{url:'./#'+e.ir}});return true}catch(x){return false}
+}
+function avisar(eventos){
+ const e=eventos[eventos.length-1],mais=eventos.length-1;
+ const titulo=mais?eventos.length+' lembretes pendentes':e.t;
+ const el=document.createElement('button');el.className='lembrete-tela vidro';el.dataset.ir=e.ir;el.setAttribute('role','status');
+ el.innerHTML='<span class="lemb-ic">'+(VI[e.ic]||'')+'</span><div><small>'+e.hora+' · lembrete</small><b>'+esc(titulo)+'</b>'+(mais?'<small>Toque no sino para ver todos</small>':'')+'</div><i>'+ic('x')+'</i>';
+ document.querySelectorAll('.lembrete-tela').forEach(x=>x.remove());document.body.append(el);requestAnimationFrame(()=>el.classList.add('on'));
  const tira=()=>{el.classList.remove('on');setTimeout(()=>el.remove(),400)};el.addEventListener('click',tira);setTimeout(tira,12000);
- try{if('Notification' in window&&Notification.permission==='granted'&&navigator.serviceWorker&&navigator.serviceWorker.ready)navigator.serviceWorker.ready.then(r=>r.showNotification('Life Trail',{body:e.t,tag:e.id,icon:'icon-192-v2.png'})).catch(()=>{})}catch(x){}}
-function checarLembretes(){if(!S)return;const dt=new Date();const agora=dt.getHours()*60+dt.getMinutes();
- eventosHoje().forEach(e=>{const m=minDe(e.hora);if(agora>=m&&agora<m+20&&!LEMB_VISTOS.has(e.id)&&!(S.lembVistos||{})[e.id]){LEMB_VISTOS.add(e.id);S.lembVistos=S.lembVistos||{};S.lembVistos[e.id]=1;try{localStorage.setItem(CHAVE,JSON.stringify(S))}catch(x){}avisar(e)}})}
-setInterval(checarLembretes,30000);document.addEventListener('visibilitychange',()=>{if(!document.hidden){checarLembretes();if(window.NUVEM&&NUVEM.ativo())NUVEM.puxar()}});
+ if(!pushDevice?.enabled)notificar({...e,t:mais?titulo+'. '+e.t:e.t})
+}
+function checarLembretes(){
+ if(!S||document.hidden||document.body.classList.contains('travado')||document.querySelector('#pm-intro[open]'))return;
+ const dt=new Date(),agora=dt.getHours()*60+dt.getMinutes();
+ const ev=vencidos(eventosHoje(),agora).filter(e=>!LEMB_VISTOS[e.id]);
+ if(!ev.length)return;
+ ev.forEach(e=>LEMB_VISTOS[e.id]=Date.now());
+ const limite=Date.now()-7*864e5;Object.keys(LEMB_VISTOS).forEach(k=>{if(LEMB_VISTOS[k]<limite)delete LEMB_VISTOS[k]});
+ try{localStorage.setItem(LEMB_CHAVE,JSON.stringify(LEMB_VISTOS))}catch(x){}
+ avisar(ev)
+}
+function camposAgenda(d,h){return '<div class="grade2 agenda-horarios"><label class="campo">Data<input name="d" type="date" value="'+esc(d)+'" required></label><label class="campo">Horário<input name="h" type="time" value="'+esc(h||'')+'" required></label></div><p class="dica">Avise-me no horário e 30 minutos antes, com o app aberto.</p>'}
+function campoHora(h){return '<label class="campo">Horário do lembrete (opcional)<input type="time" name="h" value="'+esc(h||'')+'"></label>'}
+
+const PUSH_URL='https://mgqwzaizkllkqqqbbcna.supabase.co/functions/v1/lifetrail-juliana-push';
+const PUSH_LS='lifetrail_juliana_push_v1';
+let pushDevice=null,pushTimer,pushBusy=false,pushSignature='',pushError='';
+try{pushDevice=JSON.parse(localStorage.getItem(PUSH_LS))}catch(e){}
+const b64u=b=>btoa(String.fromCharCode(...new Uint8Array(b))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+const un64=s=>Uint8Array.from(atob(s.replace(/-/g,'+').replace(/_/g,'/')),c=>c.charCodeAt(0));
+function pushDB(){return new Promise((ok,no)=>{const r=indexedDB.open('lifetrail-juliana-push',1);r.onupgradeneeded=()=>r.result.createObjectStore('keys');r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error)})}
+async function pushKey(){
+ const db=await pushDB();
+ const saved=await new Promise((ok,no)=>{const tx=db.transaction('keys','readonly'),r=tx.objectStore('keys').get('payload');r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error)});
+ if(saved){db.close();return crypto.subtle.importKey('raw',un64(saved),'AES-GCM',false,['encrypt'])}
+ const key=await crypto.subtle.generateKey({name:'AES-GCM',length:256},true,['encrypt','decrypt']),raw=b64u(await crypto.subtle.exportKey('raw',key));
+ await new Promise((ok,no)=>{const tx=db.transaction('keys','readwrite');tx.objectStore('keys').put(raw,'payload');tx.oncomplete=()=>ok();tx.onerror=()=>no(tx.error)});db.close();return key
+}
+async function pushEncrypt(message,key){
+ const iv=crypto.getRandomValues(new Uint8Array(12));
+ return {iv:b64u(iv),data:b64u(await crypto.subtle.encrypt({name:'AES-GCM',iv},key,new TextEncoder().encode(JSON.stringify(message))))}
+}
+async function pushAPI(path,body,token){
+ const r=await fetch(PUSH_URL+'/'+path,{method:body?'POST':'GET',headers:body?{'Content-Type':'application/json',...(token?{'Authorization':'Bearer '+token}:{})}:{},body:body?JSON.stringify(body):undefined,signal:AbortSignal.timeout(20000)});
+ const j=await r.json();if(!r.ok)throw Error(j.error||'Sem conexão com os avisos');return j
+}
+function pushTemplates(){
+ const list=[],today=hoje(),recent=somaDias(today,-30);
+ const skips=(obj,id)=>Object.keys(obj).filter(d=>d>=recent&&obj[d]?.[id]).slice(-31);
+ const add=(id,t,h,days,d,skip=[],early=false,ir='rotina')=>{
+  if(!horaValida(h))return;
+  list.push({id,h,...(d?{d}:{days}),skip,body:{t,hora:h,ir}});
+  if(early){
+   let m=minDe(h)-30,sd=d,sw=days,ss=skip;
+   if(m<0){m+=1440;if(d)sd=somaDias(d,-1);else sw=days.map(n=>(n+6)%7);ss=skip.map(d=>somaDias(d,-1))}
+   const pre=pad(Math.floor(m/60))+':'+pad(m%60);
+   list.push({id:'pre-'+id,h:pre,...(sd?{d:sd}:{days:sw}),skip:ss,body:{t:t+' em 30 minutos',hora:pre,ir}})
+  }
+ };
+ S.blocos.forEach(b=>add('b-'+b.id,b.t,b.ini,b.dias,null,skips(S.blocosFeitos,b.id),/igreja/i.test(b.t)));
+ S.agenda.filter(a=>!a.ok&&a.d>=today).forEach(a=>add('a-'+a.id,a.t,a.h,null,a.d,[],true));
+ S.tarefas.filter(t=>!t.feito).forEach(t=>add('t-'+t.id,t.t,t.h,[0,1,2,3,4,5,6]));
+ S.habitos.forEach(t=>add('h-'+t.id,t.t,t.h,[0,1,2,3,4,5,6],null,skips(S.habDias,t.id)));
+ const step=Number((S.avisos||{}).agua??120)||0,waterSkip=Object.keys(S.agua).filter(d=>d>=recent&&S.agua[d]>=S.meta_agua).slice(-31);
+ if(step>0)for(let m=480;m<=1200;m+=step)add('agua-'+m,'Hora de beber água',pad(Math.floor(m/60))+':'+pad(m%60),[0,1,2,3,4,5,6],null,waterSkip);
+ return list
+}
+async function pushPayloads(templates){
+ const key=await pushKey(),result=[];
+ for(const t of templates){const {body,...schedule}=t;result.push({...schedule,payload:await pushEncrypt(body,key)})}
+ return result
+}
+function pushSave(){localStorage.setItem(PUSH_LS,JSON.stringify(pushDevice))}
+async function pushSync(force=false){
+ if(pushBusy||!pushDevice?.enabled||document.body.classList.contains('travado'))return false;
+ pushBusy=true;
+ try{
+  const reg=await registroAvisos(),subscription=await reg.pushManager.getSubscription();
+  if(!subscription)throw Error('Toque em Ativar notificações para reconectar este aparelho.');
+  const timezone=Intl.DateTimeFormat().resolvedOptions().timeZone||'America/Sao_Paulo',templates=pushTemplates(),signature=JSON.stringify({templates,subscription:subscription.toJSON(),timezone});
+  if(!force&&signature===pushSignature)return true;
+  await pushAPI('sync',{schedule:await pushPayloads(templates),subscription:subscription.toJSON(),timezone},pushDevice.token);
+  pushSignature=signature;pushDevice.lastSync=Date.now();pushError='';pushSave();return true
+ }catch(e){pushError=e.message;return false}finally{pushBusy=false;pushStatus()}
+}
+function agendarPush(){if(!pushDevice?.enabled)return;clearTimeout(pushTimer);pushTimer=setTimeout(()=>pushSync(),1000)}
+function pushStatus(){
+ const el=document.getElementById('push-status');if(!el)return;
+ el.textContent=pushError?'Avisos não sincronizados: '+pushError:pushDevice?.enabled?'Envio com o app fechado ativado neste aparelho. Última sincronização: '+(pushDevice.lastSync?new Date(pushDevice.lastSync).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}):'aguardando'):'Envio com o app fechado ainda não ativado neste aparelho.'
+}
+async function ativarPush(){
+ const ios=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+ if(ios&&!(navigator.standalone||matchMedia('(display-mode: standalone)').matches)){toast('No Safari: Compartilhar → Adicionar à Tela de Início. Abra pelo ícone para ativar.');return}
+ if(!('Notification' in window)||!('PushManager' in window)){toast('Este navegador não oferece notificações push. No iPhone, abra pelo ícone da tela inicial.');return}
+ const code=document.getElementById('push-code')?.value.trim()||'';
+ if(!pushDevice?.token&&!code){toast('Digite o código de ativação recebido do Studio.');return}
+ try{
+  // Permission must be requested directly from the user's tap on iOS.
+  const permission=await Notification.requestPermission();
+  if(permission!=='granted'){toast('Permita as notificações do Life Trail nos Ajustes do celular.');return}
+  const reg=await registroAvisos(),pub=await pushAPI('key');
+  let sub=await reg.pushManager.getSubscription();
+  if(!sub)sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:un64(pub.key)});
+  if(!pushDevice?.token){
+   const token=Array.from(crypto.getRandomValues(new Uint8Array(32))).map(x=>x.toString(16).padStart(2,'0')).join('');
+   const device={id:crypto.randomUUID(),token,enabled:true};
+   await pushAPI('enroll',{...device,code,subscription:sub.toJSON(),timezone:Intl.DateTimeFormat().resolvedOptions().timeZone||'America/Sao_Paulo',schedule:await pushPayloads(pushTemplates())});
+   pushDevice=device
+  }else pushDevice.enabled=true;
+  pushSave();
+  const ok=await pushSync(true);render();
+  toast(ok?'Envio com o app fechado ativado. Agora faça o teste de 2 minutos.':'Aparelho ativado. Confira o status de sincronização abaixo.')
+ }catch(e){toast(e.message)}
+}
+async function testarPush(){
+ if(!pushDevice?.enabled){toast('Ative as notificações neste aparelho primeiro.');return}
+ try{
+  if(!await pushSync(true))throw Error(pushError||'Sincronização pendente');
+  const payload=await pushEncrypt({t:'Deu certo! Este aviso foi enviado pelo servidor, mesmo com o Life Trail fechado.',hora:new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}),ir:'perfil'},await pushKey());
+  await pushAPI('test',{payload},pushDevice.token);
+  toast('Teste agendado. Feche o app agora e aguarde até 3 minutos.')
+ }catch(e){toast(e.message)}
+}
+async function desativarPush(){
+ try{
+  await pushAPI('disable',{},pushDevice.token);pushDevice=null;localStorage.removeItem(PUSH_LS);pushSignature='';
+  const reg=await registroAvisos(),sub=await reg.pushManager.getSubscription();if(sub)await sub.unsubscribe();render();toast('Avisos desativados neste aparelho.')
+ }catch(e){toast('Não foi possível desativar: '+e.message)}
+}
+function painelPush(){
+ return '<div class="sec"><h3>Notificações com o app fechado</h3><div class="vidro cartao" style="display:grid;gap:12px"><p id="push-status" role="status">'+esc(pushError?'Sincronização pendente: '+pushError:pushDevice?.enabled?'Envio ativado neste aparelho.':'Ative uma vez neste aparelho para receber os avisos.')+'</p>'+(!pushDevice?.token?'<label class="campo">Código de ativação<input id="push-code" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="Código recebido do Studio"></label>':'')+'<button class="btn p" data-acao="push-on">Ativar / reconectar notificações</button><button class="btn" data-acao="push-test">Testar com o app fechado · 2 minutos</button>'+(pushDevice?.enabled?'<button class="btn" data-acao="push-off">Desativar neste aparelho</button>':'')+'<label class="campo">Lembrete de água, das 8h às 20h<select id="aviso-agua">'+[[0,'Desativado'],[60,'A cada 1 hora'],[120,'A cada 2 horas']].map(([v,t])=>'<option value="'+v+'" '+((Number((S.avisos||{}).agua??120)||0)===v?'selected':'')+'>'+t+'</option>').join('')+'</select></label><p class="dica">No iPhone, abra pelo ícone na tela inicial e permita notificações. Compromissos avisam 30 minutos antes e no horário; tarefas e hábitos precisam de horário no lápis. A rotina usa os horários dos blocos. Novas alterações precisam de internet para sincronizar. O modo Foco pode silenciar ou adiar os avisos.</p></div></div>'
+}
+setInterval(()=>{if(!document.hidden){agendarPush();pushStatus()}},60000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)agendarPush()});
+
+setInterval(checarLembretes,15000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){checarLembretes();if(window.NUVEM&&NUVEM.ativo())NUVEM.puxar()}});
 
 
 /* ---------- v4: flutuante, banner, árvore, bíblia ---------- */
@@ -913,7 +1062,7 @@ const HIST={b:[],f:[]};let porHist=false;
 let tela='inicio';
 function ir(t,topo=true){if(!TELAS[t])t='inicio';if(!porHist&&t!==tela){HIST.b.push(tela);HIST.f=[]}porHist=false;tela=t;if(location.hash.slice(1)!==t)history.replaceState(null,'','#'+t);render();if(topo)scrollTo({top:0})}
 const semEmoji=t=>String(t||'').replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B50}\u{FE0F}]/gu,'').replace(/\s{2,}/g,' ').trim();
-function render(){try{if(S&&S.treino&&S.treino.plano&&!S._semEmoji){Object.values(S.treino.plano).forEach(x=>{if(x&&x.n)x.n=semEmoji(x.n)});S._semEmoji=1}}catch(e){}if(S.pet)cuidarPet();const amb=$('#ambiente');if(amb&&!amb.dataset.ok){amb.style.backgroundImage='url('+(function(){try{return localStorage.getItem(CHAVE_FOTO)?foto():AMBIENTE}catch(e){return AMBIENTE}})()+')';amb.dataset.ok=1}document.querySelectorAll('.pagina').forEach(p=>{const on=p.id==='p-'+tela;p.classList.toggle('on',on);if(!on)p.innerHTML=''});const el=$('#p-'+tela);el.innerHTML=TELAS[tela]();
+function render(){agendarPush();try{if(S&&S.treino&&S.treino.plano&&!S._semEmoji){Object.values(S.treino.plano).forEach(x=>{if(x&&x.n)x.n=semEmoji(x.n)});S._semEmoji=1}}catch(e){}if(S.pet)cuidarPet();const amb=$('#ambiente');if(amb&&!amb.dataset.ok){amb.style.backgroundImage='url('+(function(){try{return localStorage.getItem(CHAVE_FOTO)?foto():AMBIENTE}catch(e){return AMBIENTE}})()+')';amb.dataset.ok=1}document.querySelectorAll('.pagina').forEach(p=>{const on=p.id==='p-'+tela;p.classList.toggle('on',on);if(!on)p.innerHTML=''});const el=$('#p-'+tela);el.innerHTML=TELAS[tela]();
  const navAtivo=NAV.some(n=>n[0]===tela)?tela:(tela==='ler'?'biblia':(['financas','metas','historico'].includes(tela)?'inicio':tela));const gn=$('#gnav');if(gn){gn.querySelector('[data-acao=nav-voltar]').disabled=!HIST.b.length;gn.querySelector('[data-acao=nav-avancar]').disabled=!HIST.f.length;gn.querySelector('[data-acao=nav-inicio]').classList.toggle('on',tela==='inicio')}petFlutuante();const dd=$('#dlg');if(dd.open&&dd.dataset.tipo==='pet'){const w=dd.querySelector('.pet-wrap');if(w)w.innerHTML=petSheet()}
  $('#nav').innerHTML=NAV.map(([id,l,i])=>'<button data-ir="'+id+'" class="'+(id===navAtivo?'on':'')+'" aria-label="'+l+'">'+ic(i)+'<span>'+l+'</span></button>').join('');
  $('#sino').classList.toggle('tem',lembretes().length>0);checarEvolucao();if(avisoPet){const av=avisoPet;avisoPet=null;setTimeout(()=>dlg(`<h3>${av.t}</h3><p class="sub" style="font-size:15px">${av.m}</p><div class="dlg-acoes"><button class="btn p" data-fechar>Vamos lá!</button></div>`,()=>{}),400)}
@@ -951,14 +1100,14 @@ function inicio(){const r=rotinaHoje();const pct=r.total?Math.round(r.feitos/r.t
 function rotina(){const h=hoje();const r=rotinaHoje();const hd=S.habDias[h]||{};const ag=S.agua[h]||0;
  const agenda=S.agenda.filter(a=>difDias(h,a.d)>=0||!a.ok).sort((a,b)=>(a.d+(a.h||'')).localeCompare(b.d+(b.h||'')));
  return `<h2 class="tit">Minha rotina</h2><p class="sub">${fmtData(h,{weekday:'long',day:'numeric',month:'long'})}</p><div class="duo">${arvore()}${blocosDia()}</div>
- <div class="sec"><h3>Tarefas</h3><div class="lista">${r.tar.length?r.tar.map(t=>`<div class="linha ${t.feito?'feito':''}"><button class="ck ${t.feito?'on':''}" data-acao="tarefa" data-id="${t.id}" aria-label="Concluir">${ic('check')}</button><span>${esc(t.t)}</span><button class="ed2" data-acao="tarefa-ed" data-id="${t.id}" aria-label="Editar">${ic('lapis')}</button><button class="x" data-acao="tarefa-x" data-id="${t.id}" aria-label="Apagar">${ic('x')}</button></div>`).join(''):'<p class="vazio">Nenhuma tarefa. Que tal anotar a primeira?</p>'}</div>
+ <div class="sec"><h3>Tarefas</h3><div class="lista">${r.tar.length?r.tar.map(t=>`<div class="linha ${t.feito?'feito':''}"><button class="ck ${t.feito?'on':''}" data-acao="tarefa" data-id="${t.id}" aria-label="Concluir">${ic('check')}</button><span>${esc(t.t)}${t.h?'<small>'+esc(t.h)+'</small>':''}</span><button class="ed2" data-acao="tarefa-ed" data-id="${t.id}" aria-label="Editar">${ic('lapis')}</button><button class="x" data-acao="tarefa-x" data-id="${t.id}" aria-label="Apagar">${ic('x')}</button></div>`).join(''):'<p class="vazio">Nenhuma tarefa. Que tal anotar a primeira?</p>'}</div>
   <form class="add" data-form="tarefa"><input name="t" placeholder="Nova tarefa" maxlength="100" required><button class="btn p" aria-label="Adicionar tarefa">${ic('mais')}</button></form>
   <p class="dica">Tarefa que não for feita continua aqui até você concluir.</p></div>
- <div class="sec"><h3>Hábitos de hoje</h3><div class="lista">${S.habitos.map(x=>`<div class="linha ${hd[x.id]?'feito':''}"><button class="ck ${hd[x.id]?'on':''}" data-acao="habito" data-id="${x.id}" aria-label="Marcar hábito">${ic('check')}</button><span>${esc(x.t)}<small>${sequencia(x.id)} dia(s) seguidos</small></span><button class="ed2" data-acao="habito-ed" data-id="${x.id}" aria-label="Editar">${ic('lapis')}</button><button class="x" data-acao="habito-x" data-id="${x.id}" aria-label="Apagar hábito">${ic('x')}</button></div>`).join('')}</div>
+ <div class="sec"><h3>Hábitos de hoje</h3><div class="lista">${S.habitos.map(x=>`<div class="linha ${hd[x.id]?'feito':''}"><button class="ck ${hd[x.id]?'on':''}" data-acao="habito" data-id="${x.id}" aria-label="Marcar hábito">${ic('check')}</button><span>${esc(x.t)}<small>${sequencia(x.id)} dia(s) seguidos${x.h?' · '+esc(x.h):''}</small></span><button class="ed2" data-acao="habito-ed" data-id="${x.id}" aria-label="Editar">${ic('lapis')}</button><button class="x" data-acao="habito-x" data-id="${x.id}" aria-label="Apagar hábito">${ic('x')}</button></div>`).join('')}</div>
   <form class="add" data-form="habito"><input name="t" placeholder="Novo hábito" maxlength="60" required><button class="btn p" aria-label="Adicionar hábito">${ic('mais')}</button></form></div>
  <div class="sec"><h3>Água · ${ag} de ${S.meta_agua} copos</h3><div class="vidro cartao"><div class="copos">${Array.from({length:S.meta_agua},(_,i)=>`<button class="copo ${i<ag?'on':''}" data-acao="agua" data-n="${i+1}" aria-label="${i+1} copo(s)"></button>`).join('')}</div><p class="dica">Toque no copo para marcar. ${ag*250} ml hoje.</p></div></div>
- <div class="sec"><h3>Compromissos</h3><div class="lista">${agenda.length?agenda.map(a=>`<div class="linha ${a.ok?'feito':''}"><button class="ck ${a.ok?'on':''}" data-acao="agenda" data-id="${a.id}" aria-label="Concluir">${ic('check')}</button><span>${esc(a.t)}<small>${a.d===h?'Hoje':fmtData(a.d,{weekday:'short',day:'2-digit',month:'short'})}${a.h?' · '+a.h:''}${difDias(a.d,h)>0&&!a.ok?' · atrasado':''}</small></span><button class="ed2" data-acao="agenda-ed" data-id="${a.id}" aria-label="Editar">${ic('lapis')}</button><button class="x" data-acao="agenda-x" data-id="${a.id}" aria-label="Apagar">${ic('x')}</button></div>`).join(''):'<p class="vazio">Nenhum compromisso anotado.</p>'}</div>
-  <form class="vidro cartao" data-form="agenda" style="margin-top:10px;display:grid;gap:8px"><input name="t" placeholder="O que é? Ex.: consulta, aniversário" maxlength="90" required><div class="grade2"><input name="d" type="date" value="${h}" required aria-label="Data"><input name="h" type="time" aria-label="Horário"></div><button class="btn p cheio">Anotar compromisso</button></form></div>`}
+ <div class="sec"><h3>Compromissos</h3><div class="lista">${agenda.length?agenda.map(a=>`<div class="linha ${a.ok?'feito':''}"><button class="ck ${a.ok?'on':''}" data-acao="agenda" data-id="${a.id}" aria-label="Concluir">${ic('check')}</button><span>${esc(a.t)}<small>${a.d===h?'Hoje':fmtData(a.d,{weekday:'short',day:'2-digit',month:'short'})}${a.h?' · '+esc(a.h):' · sem horário — toque no lápis'}${difDias(a.d,h)>0&&!a.ok?' · atrasado':''}</small></span><button class="ed2" data-acao="agenda-ed" data-id="${a.id}" aria-label="Editar">${ic('lapis')}</button><button class="x" data-acao="agenda-x" data-id="${a.id}" aria-label="Apagar">${ic('x')}</button></div>`).join(''):'<p class="vazio">Nenhum compromisso anotado.</p>'}</div>
+  <form class="vidro cartao" data-form="agenda" style="margin-top:10px;display:grid;gap:8px"><input name="t" placeholder="O que é? Ex.: consulta, aniversário" maxlength="90" required>${camposAgenda(h,'')}<button class="btn p cheio">Anotar compromisso</button></form></div>`}
 function sequencia(id){let n=0,d=hoje();if(!(S.habDias[d]||{})[id])d=somaDias(d,-1);while((S.habDias[d]||{})[id]){n++;d=somaDias(d,-1)}return n}
 
 let calMes=null;
@@ -1012,8 +1161,8 @@ function perfil(){const T=[['ceu','Céu','linear-gradient(180deg,#8ec5f5,#e9f3fc
  <div class="sec"><h3>Cópia de segurança</h3><div class="vidro cartao"><p class="sub" style="font-size:14px">Seus dados ficam só neste aparelho. Guarde uma cópia no Arquivos ou no WhatsApp. ${S.ultimaCopia?'Última cópia: '+new Date(S.ultimaCopia).toLocaleDateString('pt-BR')+'.':'Você ainda não fez nenhuma cópia.'}</p>
   <div class="grade2" style="margin-top:12px"><button class="btn p" data-acao="copia">${ic('nuvem')} Fazer cópia</button><button class="btn" data-acao="restaurar">Restaurar</button></div></div></div>
  ${PREVIA?`<div class="sec"><h3>Só na prévia: testar bichinho</h3><div class="vidro cartao grade2"><select id="demo-esp">${Object.keys(ESP).map(k=>`<option value="${k}" ${k===S.pet.esp?'selected':''}>${ESP[k].n}</option>`).join('')}</select><select id="demo-fase">${FASES.map((f,i)=>`<option value="${f[1]+5}" ${faseDe(xp())===i?'selected':''}>${f[0]}</option>`).join('')}</select></div></div>`:''}<div class="sec"><h3>Meus bichinhos</h3><div class="album"><div><span>${ESP[S.pet.esp].img?`<img src="${PET_ARNOLD}" alt="">`:(faseDe(xp())?ESP[S.pet.esp].e[Math.max(0,faseDe(xp())-1)]:'🥚')}</span><b>${esc(nomePet())}</b><small>agora</small></div>${S.album.slice().reverse().map(p=>`<div><span>${ESP[p.esp].img?`<img src="${PET_ARNOLD}" alt="">`:ESP[p.esp].e[5]}</span><b>${esc(p.nome)}</b><small>${esc(p.como)}</small></div>`).join('')}</div>${S.pet.esp==='arnold'||faseDe(xp())===0?'':`<label class="campo" style="margin-top:10px">Nome do bichinho<input id="nome-pet" value="${esc(S.pet.nome)}" maxlength="20"></label>`}</div>
- <div class="sec"><h3>Nuvem e lembretes</h3><div class="vidro cartao" style="display:grid;gap:10px"><p class="sub" style="font-size:14px">${window.SEM_NUVEM?'Na prévia não salva na nuvem. No app publicado, tudo fica salvo na nuvem com senha.':NUVEM.ativo()?'☁️ Seus dados ficam salvos na nuvem, criptografados com a sua senha.':'Sem conexão com a nuvem agora. Seus dados estão salvos no aparelho.'}</p>
- <button class="btn" data-acao="notif"><span class="tag-ic">${VI.sino}</span>Permitir notificações no celular</button><p class="dica" style="margin:0">Os lembretes aparecem na tela enquanto o app está aberto. No iPhone, as notificações só funcionam com o app instalado na tela de início.</p>
+ ${painelPush()}<div class="sec"><h3>Nuvem</h3><div class="vidro cartao" style="display:grid;gap:10px"><p class="sub" style="font-size:14px">${window.SEM_NUVEM?'Na prévia não salva na nuvem. No app publicado, tudo fica salvo na nuvem com senha.':NUVEM.ativo()?'☁️ Seus dados ficam salvos na nuvem, criptografados com a sua senha.':'Sem conexão com a nuvem agora. Seus dados estão salvos no aparelho.'}</p>
+
  ${!window.SEM_NUVEM&&NUVEM.ativo()?'<div class="grade2"><button class="btn" data-acao="nuvem-trocar">Trocar chave</button><button class="btn" data-acao="nuvem-sair">Sair deste aparelho</button></div>':''}</div></div>
  <div class="sec"><h3>Meta de água</h3><div class="vidro cartao grade2"><span class="sub" style="align-self:center">Copos por dia</span><input type="number" id="meta-agua" min="4" max="16" value="${S.meta_agua}" aria-label="Copos de água por dia"></div></div>
  <p class="dica" style="text-align:center;margin-top:24px">Life Trail da Juliana · feito pelo Studio Evolution Tech</p>`}
@@ -1055,7 +1204,9 @@ document.addEventListener('click',e=>{const a=e.target.closest('[data-ir],[data-
  case 'bloco-ed':editarBloco(S.blocos.find(x=>x.id===id));return;
  case 'bloco-novo':editarBloco(null);return;
  case 'bloco-x':S.blocos=S.blocos.filter(x=>x.id!==id);break;
- case 'notif':if(!('Notification' in window)){toast('Este navegador não permite notificações. Instale o app na tela de início.');return}Notification.requestPermission().then(p=>toast(p==='granted'?'Notificações ativadas 🔔':'Notificações não permitidas'));return;
+ case 'notif':case 'push-on':ativarPush();return;
+ case 'push-test':testarPush();return;
+ case 'push-off':desativarPush();return;
  case 'nuvem-trocar':NUVEM.trocar();return;
  case 'nuvem-sair':NUVEM.sair();return;
  case 'nav-voltar':if(HIST.b.length){HIST.f.push(tela);porHist=true;ir(HIST.b.pop())}return;
@@ -1063,9 +1214,9 @@ document.addEventListener('click',e=>{const a=e.target.closest('[data-ir],[data-
  case 'nav-inicio':if(tela!=='inicio')ir('inicio');else scrollTo({top:0,behavior:'smooth'});return;
  case 'arv':{const [t,k]=a.dataset.k.split(':');if(t==='b'){const f=S.blocosFeitos[h]=S.blocosFeitos[h]||{};f[k]=!f[k];const b=S.blocos.find(x=>x.id===k);if(f[k])toast('🌸 '+(b?b.t:'')+' floresceu!')}else{const d=S.habDias[h]=S.habDias[h]||{};d[k]=!d[k];const x=S.habitos.find(y=>y.id===k);if(d[k])toast('🌸 '+(x?x.t:'')+' floresceu!')}
   const it=itensArvore(h);if(it.length&&it.every(i=>i.ok))setTimeout(()=>confete(['🌸','🌿','✨','💜','🌼']),200);break}
- case 'tarefa-ed':{const t=S.tarefas.find(x=>x.id===id);editarTexto('Editar tarefa',t.t,f=>{t.t=String(f.get('v')).trim()});return}
- case 'habito-ed':{const x=S.habitos.find(y=>y.id===id);editarTexto('Editar hábito',x.t,f=>{x.t=String(f.get('v')).trim()});return}
- case 'agenda-ed':{const x=S.agenda.find(y=>y.id===id);editarTexto('Editar compromisso',x.t,f=>{x.t=String(f.get('v')).trim();x.d=f.get('d')||x.d;x.h=f.get('h')||''},`<div class="grade2"><input name="d" type="date" value="${x.d}" aria-label="Data"><input name="h" type="time" value="${x.h||''}" aria-label="Horário"></div>`);return}
+ case 'tarefa-ed':{const t=S.tarefas.find(x=>x.id===id);editarTexto('Editar tarefa',t.t,f=>{t.t=String(f.get('v')).trim();t.h=String(f.get('h')||'')},campoHora(t.h));return}
+ case 'habito-ed':{const x=S.habitos.find(y=>y.id===id);editarTexto('Editar hábito',x.t,f=>{x.t=String(f.get('v')).trim();x.h=String(f.get('h')||'')},campoHora(x.h));return}
+ case 'agenda-ed':{const x=S.agenda.find(y=>y.id===id);editarTexto('Editar compromisso',x.t,f=>{x.t=String(f.get('v')).trim();x.d=f.get('d')||x.d;x.h=f.get('h')||''},camposAgenda(x.d,x.h));return}
  case 'fin-ed':{const x=S.fin.find(y=>y.id===id);editarTexto('Editar lançamento',x.desc,f=>{x.desc=String(f.get('v')).trim();const nv=num(f.get('valor'));if(nv)x.v=nv;x.d=f.get('d')||x.d},`<div class="grade2"><input name="valor" inputmode="decimal" value="${String(x.v).replace('.',',')}" aria-label="Valor"><input name="d" type="date" value="${x.d}" aria-label="Data"></div>`);return}
  case 'bib-livro':bibLivro=+v||null;break;
  case 'ler-ref':{const b=+a.dataset.b,c=+a.dataset.c;abrirLeitura([[b,c]],null);return}
@@ -1096,17 +1247,17 @@ document.addEventListener('submit',e=>{const f=e.target.closest('[data-form]');i
  switch(f.dataset.form){
  case 'tarefa':S.tarefas.push({id:uid(),t:F.get('t').trim(),feito:null});break;
  case 'habito':S.habitos.push({id:uid(),t:F.get('t').trim()});break;
- case 'agenda':S.agenda.push({id:uid(),t:F.get('t').trim(),d:F.get('d'),h:F.get('h')||'',ok:false});toast('Compromisso anotado');break;
+ case 'agenda':if(!horaValida(F.get('h'))){toast('Preencha o horário do compromisso.');return}S.agenda.push({id:uid(),t:F.get('t').trim(),d:F.get('d'),h:F.get('h'),ok:false});toast('Compromisso anotado');break;
  case 'ciclo-config':S.ciclo.inicios=[F.get('ult')];S.ciclo.duracao=+F.get('dur')||28;S.ciclo.menst=+F.get('menst')||5;calMes=hoje().slice(0,7);break;
  case 'fin':{const v=num(F.get('v'));if(!v){toast('Informe o valor');return}S.fin.push({id:uid(),tipo:F.get('tipo'),v,desc:F.get('desc').trim(),c:F.get('c'),d:F.get('d')});finMes=F.get('d').slice(0,7);toast('Lançado');break}
  case 'meta':S.metas.push({id:uid(),t:F.get('t').trim(),alvo:num(F.get('alvo'))||1,atual:0,un:(F.get('un')||'').trim()||'vezes'});break}
  salvar();render()});
-document.addEventListener('change',e=>{if(e.target.id==='nome'){S.nome=e.target.value.trim()||'Juliana';salvar()}if(e.target.id==='demo-esp'){S.pet.esp=e.target.value;S.pet.nome=S.pet.esp==='arnold'?'Arnold Gostozinho':'';salvar();render()}if(e.target.id==='demo-fase'){S.demoXp=+e.target.value;salvar();render()}if(e.target.id==='nome-pet'){S.pet.nome=e.target.value.trim()||S.pet.nome;salvar()}if(e.target.id==='meta-agua'){S.meta_agua=Math.min(16,Math.max(4,+e.target.value||8));salvar()}});
+document.addEventListener('change',e=>{if(e.target.id==='aviso-agua'){S.avisos=S.avisos||{};S.avisos.agua=Number(e.target.value);salvar();checarLembretes()}if(e.target.id==='nome'){S.nome=e.target.value.trim()||'Juliana';salvar()}if(e.target.id==='demo-esp'){S.pet.esp=e.target.value;S.pet.nome=S.pet.esp==='arnold'?'Arnold Gostozinho':'';salvar();render()}if(e.target.id==='demo-fase'){S.demoXp=+e.target.value;salvar();render()}if(e.target.id==='nome-pet'){S.pet.nome=e.target.value.trim()||S.pet.nome;salvar()}if(e.target.id==='meta-agua'){S.meta_agua=Math.min(16,Math.max(4,+e.target.value||8));salvar()}});
 $('#arquivo-foto').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const W=900,s=Math.min(1,W/im.width);const c=document.createElement('canvas');c.width=im.width*s;c.height=im.height*s;c.getContext('2d').drawImage(im,0,0,c.width,c.height);
  try{localStorage.setItem(CHAVE_FOTO,c.toDataURL('image/jpeg',.82));toast('Foto trocada')}catch(err){toast('Foto muito grande para este aparelho')}render()};im.src=r.result};r.readAsDataURL(f);e.target.value=''};
 function copia(){S.ultimaCopia=Date.now();salvar();const dados={app:'life-trail-juliana',versao:2,data:new Date().toISOString(),estado:S};const b=new Blob([JSON.stringify(dados)],{type:'application/json'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='life-trail-juliana-'+hoje()+'.json';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),3000);toast('Cópia salva. Guarde no Arquivos ou no WhatsApp.');render()}
 $('#arquivo-copia').onchange=e=>{const f=e.target.files[0];if(!f)return;f.text().then(t=>{const d=JSON.parse(t);if(d.app!=='life-trail-juliana'||!d.estado)throw 0;S=d.estado;for(const k in PADRAO)if(S[k]===undefined)S[k]=JSON.parse(JSON.stringify(PADRAO[k]));salvar();toast('Dados restaurados');render()}).catch(()=>toast('Esse arquivo não é uma cópia do seu Life Trail'));e.target.value=''};
-$('#sino').onclick=()=>{const L=lembretes();dlg(`<h3>Lembretes de hoje</h3><div class="lista">${L.length?L.map(([i,t,s,p])=>`<button class="linha" data-ir="${p}" data-fechar style="text-align:left;color:inherit;font:inherit">${ic(i)}<span><b>${esc(t)}</b><small>${esc(s)}</small></span>${ic('seta')}</button>`).join(''):'<p class="vazio">Tudo em dia. Aproveite! ✨</p>'}</div><div class="dlg-acoes"><button class="btn" data-fechar>Fechar</button></div>`,()=>{})};
+$('#sino').onclick=()=>{const L=eventosHoje().map(e=>[e.ic,e.t,e.hora,e.ir]).concat(lembretes());dlg(`<h3>Lembretes de hoje</h3><div class="lista">${L.length?L.map(([i,t,s,p])=>`<button class="linha" data-ir="${p}" data-fechar style="text-align:left;color:inherit;font:inherit">${ic(i)}<span><b>${esc(t)}</b><small>${esc(s)}</small></span>${ic('seta')}</button>`).join(''):'<p class="vazio">Tudo em dia. Aproveite! ✨</p>'}</div><div class="dlg-acoes"><button class="btn" data-fechar>Fechar</button></div>`,()=>{})};
 document.addEventListener('pointermove',e=>{if(e.pointerType!=='mouse')return;const g=e.target.closest&&e.target.closest('.vidro');if(!g)return;const b=g.getBoundingClientRect();g.style.setProperty('--mx',(e.clientX-b.left)+'px');g.style.setProperty('--my',(e.clientY-b.top)+'px')},{passive:true});
 addEventListener('hashchange',()=>{const t=location.hash.slice(1);if(t&&t!==tela&&TELAS[t])ir(t)});
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)render()});
