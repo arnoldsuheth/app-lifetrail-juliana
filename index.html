@@ -713,7 +713,7 @@ const NUVEM=(()=>{const OWNER='arnoldsuheth',REPO='app-lifetrail-juliana',DATA_R
   try{for(let i=0;i<3;i++){const r=await baixar();if(r.st&&(r.st.updatedAt||0)>(S.updatedAt||0)){S=r.st;try{localStorage.setItem(CHAVE,JSON.stringify(S))}catch(e){}render();marca('ok');return}
     try{await gh(API,{method:'PUT',body:JSON.stringify({message:'Atualiza Life Trail',content:b64(te.encode(JSON.stringify(await cifra(KEY,S)))),...(r.sha?{sha:r.sha}:{})})});marca('ok');return}catch(e){if(e.status!==409&&e.status!==422)throw e}}}
   catch(e){marca('off');if(e.status===401||e.status===403)toast('A chave da nuvem venceu. Peça ao Arnold para trocar em Perfil.')}finally{enviando=false;if(denovo){denovo=false;enviar()}}}
- async function puxar(){if(!SES)return;marca('busy');try{const r=await baixar();if(r.st&&(r.st.updatedAt||0)>(S.updatedAt||0)){S=r.st;for(const k in PADRAO)if(S[k]===undefined)S[k]=JSON.parse(JSON.stringify(PADRAO[k]));try{localStorage.setItem(CHAVE,JSON.stringify(S))}catch(e){}render();marca('ok')}else if(!r.st||(S.updatedAt||0)>(r.st.updatedAt||0))await enviar();else marca('ok')}catch(e){marca('off')}}
+ async function puxar(){if(!SES)return;registrarUso();marca('busy');try{const r=await baixar();if(r.st&&(r.st.updatedAt||0)>(S.updatedAt||0)){S=r.st;for(const k in PADRAO)if(S[k]===undefined)S[k]=JSON.parse(JSON.stringify(PADRAO[k]));try{localStorage.setItem(CHAVE,JSON.stringify(S))}catch(e){}render();marca('ok')}else if(!r.st||(S.updatedAt||0)>(r.st.updatedAt||0))await enviar();else marca('ok')}catch(e){marca('off')}}
  async function lerCofre(){try{const r=await fetch('cofre.json?t='+Date.now(),{cache:'no-store'});if(r.ok){const j=await r.json();lss(LS_COFRE,j);return j}if(r.status===404)return lsg(LS_COFRE)||null;return lsg(LS_COFRE)}catch(e){return lsg(LS_COFRE)||'offline'}}
  async function gravarCofre(c,tk){let sha;try{sha=(await gh(`/repos/${OWNER}/${REPO}/contents/cofre.json`,{},tk)).sha}catch(e){if(e.status!==404)throw e}
   await gh(`/repos/${OWNER}/${REPO}/contents/cofre.json`,{method:'PUT',body:JSON.stringify({message:'Cofre do Life Trail (criptografado)',content:b64(te.encode(JSON.stringify(c,null,1))),sha})},tk);lss(LS_COFRE,c)}
@@ -743,6 +743,13 @@ const NUVEM=(()=>{const OWNER='arnoldsuheth',REPO='app-lifetrail-juliana',DATA_R
   if(guard&&!(ss&&ss.token)){COFRE=guard;login();lerCofre().then(c=>{if(c&&c!=='offline')COFRE=c});return}
   COFRE=await lerCofre();if(COFRE==='offline'){marca('off');return}if(!COFRE){setup();return}
   if(ss&&ss.token&&ss.key){try{KEY=await crypto.subtle.importKey('raw',unb64(ss.key),{name:'AES-GCM'},true,['encrypt','decrypt']);SES={token:ss.token};await puxar();return}catch(e){}}login()}
+ // Registro de uso (14/11/2026): só a data e a hora em que o app foi aberto, sem nada do conteúdo.
+ // Fica em uso.json no repositório de dados dela; a Gestão do Studio lê para ver se o app está ajudando.
+ async function registrarUso(){try{if(!SES)return;const ag=Date.now(),ult=+(localStorage.getItem('lt_uso_ultimo_'+DATA_REPO)||0);if(ag-ult<3*36e5)return;localStorage.setItem('lt_uso_ultimo_'+DATA_REPO,String(ag));
+  const f=new Intl.DateTimeFormat('sv-SE',{timeZone:'America/Sao_Paulo',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}).format(new Date()).replace(' ','T');
+  const P=`/repos/${OWNER}/${DATA_REPO}/contents/uso.json`;for(let i=0;i<2;i++){let sha='',lista=[];try{const j=await gh(P+'?t='+Date.now());sha=j.sha;lista=JSON.parse(td.decode(unb64(j.content.replace(/\n/g,'')))).aberturas||[]}catch(e){if(e.status!==404)return}
+   lista.push(f);lista=lista.slice(-600);try{await gh(P,{method:'PUT',body:JSON.stringify({message:'Uso do app',content:b64(te.encode(JSON.stringify({aberturas:lista}))),...(sha?{sha}:{})})});return}catch(e){if(e.status!==409&&e.status!==422)return}}}catch(e){}}
+ document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')registrarUso()});
  function sair(){lsd(LS_SESS);try{sessionStorage.removeItem(LS_SESS)}catch(e){}location.reload()}
  return {iniciar,agendar(){if(!SES)return;marca('busy');clearTimeout(t);t=setTimeout(enviar,1500)},puxar,sair,trocar(){lsd(LS_SESS);COFRE=null;setup()},estado:()=>estado,ativo:()=>!!SES}})();
 window.NUVEM=NUVEM;
